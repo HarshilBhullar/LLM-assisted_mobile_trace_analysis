@@ -1,0 +1,14 @@
+I want you to define a class `myAnalyzer` that inherits from a base `Analyzer` class, and returns intervals for control plane service requests:
+
+1. Class Definition: `myAnalyzer`
+This class extends from a base `Analyzer` class. Through `set_source`, it configures which signaling messages to read by enabling logs for incoming and outgoing NAS EMM packets and RRC OTA packets.
+The `__msg_callback` function processes messages based on their type:
+  - NAS EMM Incoming Packets: Parses XML data to capture 'Attach accept' messages and logs them.
+  - RRC OTA Packets: Logs 'RRC release' and 'RRC connection request' messages based on the message length.
+  - NAS EMM Outgoing Packets: Captures 'Control plane service request' messages from the outgoing packets.
+
+2. Analysis Function: `my_analysis`
+Initialize an `OfflineReplayer`and set the path for the input data. Configure the source with an instance of `myAnalyzer` and runs the source to process the data. You should include error handling to manage exceptions during execution.
+
+3. Execution Logic
+Upon execution, which is triggered via command-line with an input file path, the script processes the log file through the configured analyzer. It then handles the output by filtering out 'Control plane service request' messages that immediately follow an 'Attach accept' to avoid double counting in specific scenarios. Subsequently, it calculates the time intervals between 'RRC release' and the next 'RRC connection request' for each 'Control plane service request'. These intervals are logged to a CSV file named 'interval_stats.csv'.

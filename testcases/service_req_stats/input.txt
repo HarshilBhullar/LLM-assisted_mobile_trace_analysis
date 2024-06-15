@@ -1,0 +1,17 @@
+I want you to define a class `myAnalyzer` that inherits from a base `Analyzer` class, and returns statistics for control plane service requests:
+
+1. Class Definition: `myAnalyzer`
+   - The class should read in LTE_NAS_EMM_OTA_Incoming_Packet, LTE_NAS_EMM_OTA_Outgoing_Packet and LTE_RRC_OTA_Packet.
+   - The class should initialize counters for various events: service rejections, service accepts, control plane service requests, and RRC releases.
+   - Registers a callback method (`__msg_callback`) to process incoming messages. For NAS EMM packets (both incoming and outgoing), it parses XML data to check specific NAS message types (Attach accept, Service accept, Service reject, and Control plane service request) and updates respective counters based on the contents. For RRC packets, it prints "log_msg_len" and "timestamp" data fields, if present.
+
+2. Analysis Function: `my_analysis`
+   - Creates an instance of an offline replay source (`OfflineReplayer`) for processing log files.
+   - Sets the file path for the input data and configures the source with the `myAnalyzer` instance.
+   - Runs the analysis by processing the trace data through the source. Any exceptions during this process are caught and reported.
+   - Returns the configured and used analyzer instance for further use or querying of the collected data.
+
+3. Main Function:
+    - The script is expected to be executed with a command-line argument specifying the path to the input log file.
+    - Upon successful analysis, it prints the count of RRC releases.
+    - If there are any control plane service requests and at least one service response (accept or reject), it appends these statistics along with the input file path to a CSV file for record-keeping.

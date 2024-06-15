@@ -1,0 +1,20 @@
+I want you to define a class `myAnalyzer` that inherits from a base `Analyzer` class, and returns statistics for attach events: 
+
+1. Class Definition: `myAnalyzer`
+The constructor initializes the `Analyzer` base class, sets up message counters for authentication requests, security commands, 
+attach accepts, attach requests, and attach rejections.
+The class should read in incoming and outgoing NAS ESM and EMM packets. 
+The `__msg_callback` function processes each message by decoding the data and examining XML content to identify specific NAS message 
+types like attach requests, attach accepts, attach rejections, 
+authentication requests, and security mode commands. It updates the respective counters.
+
+2. Analysis Function: `my_analysis`
+Initialize an `OfflineReplayer` as the data source, setting the input path for the trace logs.
+Configure the source with an instance of `myAnalyzer` and runs the analysis. It should include error handling to manage exceptions 
+that might occur during execution, providing feedback if the analysis fails.
+
+3. Main Function:
+After successfully running the analysis, the script gathers the counts of each event type from the analyzer.
+It compiles these statistics into a row format and appends them to a CSV file named 'attach_stats.csv'. This file logs the input file
+path and counts of authentication requests, security commands, attach accepts, attach requests, and attach rejections.
+
