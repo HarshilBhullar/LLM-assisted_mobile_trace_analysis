@@ -1,35 +1,48 @@
-# Usage: python kpi=manager-modified.py [dirname]
-# Example1: python kpi-manager-modified.py logs/bler_sample.mi2log 
-# (For testing KPI BLER and UL_PDCP_LOSS)
-# Example2: python kpi-manager-modified.py logs/data_sample.mi2log 
-# (For testing KPI DL_PDCP_LOSS, HANDOVER_EFFICIENCY, HANDOVER_LATENCY)
+
+#!/usr/bin/python
 
 import sys
+
 from mobile_insight.monitor import OfflineReplayer
-from mobile_insight.analyzer.kpi import KPIManager
+from mobile_insight.analyzer import LteDlRetxAnalyzer
 
-def kpi_manager_modified_example(path):
+if __name__ == "__main__":
     src = OfflineReplayer()
-    src.set_input_path(path)
-    
-    kpi_manager = KPIManager()
-    
-    # Test adjusted KPIs - data plane
-    kpi_manager.enable_kpi("KPI.Wireless.BLER", periodicity='5m')  # Adjusted periodicity
-    kpi_manager.enable_kpi("KPI.Wireless.UL_PDCP_LOSS")  # Removed DL_PDCP_LOSS for this test
+    src.set_input_path(sys.argv[1])
 
-    # Test adjusted KPIs - handover
-    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_EFFICIENCY")  # New KPI for testing handover efficiency
-    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_LATENCY")
+    lteAnalyzer = LteDlRetxAnalyzer()
+    lteAnalyzer.set_source(src)
 
-    kpi_manager.set_source(src)
     src.run()
 
-if __name__ == '__main__':
-    kpi_manager_modified_example(sys.argv[1])
-# ### Key Modifications:
-# 1. **Adjusted Periodicity**: Changed the periodicity of "KPI.Wireless.BLER" to '5m' from its default setting.
-# 2. **New KPI**: Added a new KPI "KPI.Mobility.HANDOVER_EFFICIENCY" to demonstrate different handover metrics.
-# 3. **Removed KPI**: Removed "KPI.Wireless.DL_PDCP_LOSS" from one of the test cases to focus on uplink analysis.
+    mac_delay = 0.0
+    mac_delay_sample = 0
+    
+    rlc_delay = 0.0
+    rlc_delay_sample = 0
 
-# This modified analyzer remains consistent with the codebase's style and structure, ensuring it integrates seamlessly with existing components. Adjustments to the KPIs and their configurations allow for different slices of data analysis, which can be useful for varied test scenarios.
+    max_mac_retx = 0
+    max_rlc_retx = 0
+
+    for _, bearer in lteAnalyzer.bearer_entity.items():
+        for item in bearer.mac_retx:
+            mac_retx_value = item['mac_retx']
+            mac_delay += mac_retx_value
+            if mac_retx_value > max_mac_retx:
+                max_mac_retx = mac_retx_value
+        mac_delay_sample += len(bearer.mac_retx)
+
+        for item in bearer.rlc_retx:
+            rlc_retx_value = item['rlc_retx']
+            rlc_delay += rlc_retx_value
+            if rlc_retx_value > max_rlc_retx:
+                max_rlc_retx = rlc_retx_value
+        rlc_delay_sample += len(bearer.rlc_retx)
+
+    avg_mac_delay = float(mac_delay) / mac_delay_sample if mac_delay_sample > 0 else 0.0
+    avg_rlc_delay = float(rlc_delay) / rlc_delay_sample if rlc_delay_sample > 0 else 0.0
+    
+    print("Average MAC retx delay is: ", avg_mac_delay)
+    print("Maximum MAC retx delay is: ", max_mac_retx)
+    print("Average RLC retx delay is:", avg_rlc_delay)
+    print("Maximum RLC retx delay is:", max_rlc_retx)

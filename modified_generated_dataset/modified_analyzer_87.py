@@ -12,7 +12,7 @@ from mobile_insight.analyzer.kpi import KPIManager, KpiAnalyzer
 import cProfile
 
 
-def kpi_manager_modified_example(path):
+def modified_kpi_manager_example(path):
 
     src = OfflineReplayer()
     src.set_input_path(path)
@@ -20,15 +20,15 @@ def kpi_manager_modified_example(path):
     kpi_manager = KPIManager()
     # print "All supported KPIs:", str(kpi_manager.list_kpis())
 
-    # Test experimental KPIs - data plane with a modified periodicity
+    # Test modified KPIs - data plane
     kpi_manager.enable_kpi("KPI.Wireless.BLER", periodicity='5m') # test log: bler_sample
     kpi_manager.enable_kpi("KPI.Wireless.DL_PDCP_LOSS", periodicity='5m') # test log: data_sample
     kpi_manager.enable_kpi("KPI.Wireless.UL_PDCP_LOSS", periodicity='5m')
 
-    # Test experimental KPIs - handover with a different set of metrics
-    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_PREDICTION", periodicity='5m') # test log: data_sample
-    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_LATENCY", periodicity='5m') # test log: data_sample
-    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_SUCCESS_RATE") # added new KPI metric
+    # Test modified KPIs - handover
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_PREDICTION", threshold=0.8) # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_LATENCY", threshold=0.8) # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_HOL", threshold=0.8) # test log: data_sample
 
     kpi_manager.set_source(src)
 
@@ -36,4 +36,4 @@ def kpi_manager_modified_example(path):
 
 
 if __name__ == '__main__':
-    kpi_manager_modified_example(sys.argv[1])
+    modified_kpi_manager_example(sys.argv[1])
