@@ -1,0 +1,61 @@
+Prompt: I want you to define a class `MsgStatisticsModified` that inherits from a base `Analyzer` class, and returns statistics for cellular messages:
+
+1. Class Definition: `MsgStatisticsModified`
+This class extends from a base `Analyzer` class. The constructor initializes the `Analyzer` base class and sets up dictionaries for message type statistics, message arrival rates, message lengths, and average message lengths.
+The `set_source` function configures the source and enables all logs from the source.
+The `__msg_callback` function processes each message by decoding the data and updating the respective counters. For each message type, it keeps track of the count, arrival times, lengths, and calculates the average length.
+
+2. Analysis Function: `reset`
+This function resets all the counters and dictionaries to their initial state.
+
+3. Data Collection:
+The `__msg_callback` function decodes each message and updates the respective counters for message type statistics, message arrival rates, and message lengths. It also calculates the average message length for each message type.
+
+Note: This class will be used in the provided script to evaluate message statistics. The script will first initialize an `OfflineReplayer` as the data source and set the input path for the logs. Then it will configure the source with an instance of `MsgStatisticsModified` and run the source to process the data. Finally, it will save the results to text files for message type statistics, message arrival rates, and message lengths.
+#!/usr/bin/python
+# Filename: msg-statistics-example.py
+import os
+import sys
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.msg_statistics import MsgStatistics
+
+"""
+This example shows how to get basic statistics of a offline log
+"""
+if __name__ == "__main__":
+
+    # Initialize a 3G/4G monitor
+    src = OfflineReplayer()
+    src.set_input_path("./offline_log_example.mi2log")
+
+    statistics = MsgStatistics()
+    statistics.set_source(src)
+
+    # Start the monitoring
+    src.run()
+
+    # Save results
+    f_statistics = open('./msg_type_statistics.txt', 'w')
+    for item in statistics.msg_type_statistics:
+        f_statistics.write(
+            item + " " + str(statistics.msg_type_statistics[item]) + "\n")
+    f_statistics.close()
+
+    f_rate = open('./msg_arrival_rate.txt', 'w')
+    for item in statistics.msg_arrival_rate:
+        f_rate.write(item + " ")
+        for k in range(1, len(statistics.msg_arrival_rate[item])):
+            f_rate.write(str(
+                (statistics.msg_arrival_rate[item][k] - statistics.msg_arrival_rate[item][k - 1]).total_seconds() * 1000) + " ")
+        f_rate.write("\n")
+    f_rate.close()
+
+    f_msg_len = open('./msg_length.txt', 'w')
+    for item in statistics.msg_lengh:
+        f_msg_len.write(item + " ")
+        for k in range(0, len(statistics.msg_lengh[item])):
+            f_msg_len.write(str(statistics.msg_lengh[item][k]) + " ")
+        f_msg_len.write("\n")
+    f_msg_len.close()

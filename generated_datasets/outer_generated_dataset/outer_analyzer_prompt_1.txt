@@ -1,0 +1,91 @@
+Prompt: I want you to define an outer analyzer script that uses the `MsgStatistics` class from the inner analyzer file `msg_statistics.py` to get enhanced statistics of an offline log.
+
+1. Initialization: 
+The script should start by initializing an `OfflineReplayer` and setting the path for the input data.
+
+2. Analysis Setup: 
+Then, it should create an instance of `MsgStatistics` and set the source to the `OfflineReplayer`. 
+
+3. Execution: 
+Once the setup is complete, the script should run the source to process the data.
+
+4. Save Results:
+After processing, the script should save the results as follows:
+  - Message Type Statistics: Each message type and its count should be written into a file named 'msg_type_statistics.txt'.
+  - Message Arrival Rate: For each message type, the script should calculate the arrival interval time in milliseconds and write this into a file named 'msg_arrival_rate.txt'. Additionally, the average arrival interval should also be calculated and written to the same file.
+  - Message Length: For each message type, the script should write the length of each message into a file named 'msg_length.txt'. The average message length should also be calculated and written to the same file.
+
+Note: The inner analyzer file `msg_statistics.py` should be imported from the `mobile_insight.analyzer` package, and it uses the `Analyzer` class from MobileInsight to create the `MsgStatistics` class. The `MsgStatistics` class reads in all cellular signaling messages, keeps a count of each message type, stores the arrival interval of each message, and records the length of each message.#!/usr/bin/python
+# Filename: msg_statistics.py
+"""
+A simple analyzer to study the cellular message statistics and arrival interval time
+
+Author: Yuanjie Li
+"""
+
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = ["MsgStatistics"]
+
+
+class MsgStatistics(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+    def reset(self):
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+    def set_source(self, source):
+        """
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """
+        Analyzer.set_source(self, source)
+        source.enable_log_all()
+
+    def __msg_callback(self, msg):
+
+        log_item = msg.data.decode()
+
+        if msg.type_id not in self.msg_type_statistics:
+            self.msg_type_statistics[msg.type_id] = 1
+        else:
+            self.msg_type_statistics[msg.type_id] = self.msg_type_statistics[msg.type_id] + 1
+
+        if msg.type_id not in self.msg_arrival_rate:
+            self.msg_arrival_rate[msg.type_id] = [log_item["timestamp"]]
+        else:
+            self.msg_arrival_rate[msg.type_id].append(log_item["timestamp"])
+
+        if msg.type_id not in self.msg_lengh:
+
+            if "log_msg_len" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["log_msg_len"]]
+            elif "Msg Length" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["Msg Length"]]
+            elif "Message Length" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["Message Length"]]
+            # TODO: For EMM/ESM, why the metadata header does not have msg
+            # length?
+        else:
+            if "log_msg_len" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["log_msg_len"])
+            elif "Msg Length" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["Msg Length"])
+            elif "Message Length" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["Message Length"])

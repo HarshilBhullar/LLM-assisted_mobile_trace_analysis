@@ -1,0 +1,74 @@
+I want you to define a class `ModifiedUplinkLatencyAnalyzer` that inherits from a base `Analyzer` class, and returns uplink latency analysis with additional metrics:
+
+1. Class Definition: `ModifiedUplinkLatencyAnalyzer`
+This class extends from the base `Analyzer` class. It defines multiple timers and counters for PHY stats, MAC buffer, and latency stats.
+The `set_source` function configures the trace source and enables logs for 'LTE_PHY_PUSCH_Tx_Report' and 'LTE_MAC_UL_Buffer_Status_Internal'.
+The `__msg_callback` function processes messages based on their type:
+  - LTE_PHY_PUSCH_Tx_Report: This log informs about the transmission report for the Physical Uplink Shared Channel (PUSCH). For each record in this log, it updates the cumulative error block and block counters. If the Re-tx Index indicates a retransmission, it updates the respective latency in the temporary dictionary.
+  - LTE_MAC_UL_Buffer_Status_Internal: This log provides the status of the uplink buffer at the MAC layer. The function updates the time, calculates the total bytes transmitted, and manages the packet queue based on the total bytes in the buffer. It also populates the temporary dictionary with waiting and transmission latencies.
+
+The `update_time` function updates the system frame number (SFN) and frame number (FN) based on the provided SFN and FN from the message.
+
+2. Additional Metrics Function: `print_total_bytes`
+This function prints the total bytes transmitted, which is a new metric added to this analysis.
+
+3. Execution Logic
+Upon execution, the script processes the log file through the configured analyzer. It calculates the total latency, waiting latency, transmission latency, and retransmission latency. These metrics are calculated for each packet and their averages are printed. If this analysis fails due to missing message types in the log file, it provides feedback. 
+
+Note: This inner analyzer class will be used to run an outer analyzer file that will evaluate some metrics. The outer analyzer file will import this `ModifiedUplinkLatencyAnalyzer` class, initialize an `OfflineReplayer` as the data source, set the input path for the trace logs, and run the analysis. The results of the analysis will be used to calculate and print the average latencies.
+#!/usr/bin/python
+
+import os
+import sys
+import shutil
+import traceback
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import UplinkLatencyAnalyzer
+
+
+
+def uplink_latency_analysis():
+    src = OfflineReplayer()
+    # src.set_input_path("./logs/latency_sample.mi2log")
+    src.set_input_path(sys.argv[1])
+    # print (sys.argv[1])
+
+    analyzer = UplinkLatencyAnalyzer()
+    analyzer.set_source(src)
+
+    src.run()
+
+    return analyzer
+
+
+stats = uplink_latency_analysis()
+# print stats.all_packets
+# print stats.cum_err_block
+# print stats.cum_block
+
+total_latency = 0
+total_wait = 0
+total_trans = 0
+total_retx = 0
+
+total_retx = 8 * stats.cum_err_block[0]
+for latency in stats.all_packets:
+  total_wait += latency['Waiting Latency']
+  total_trans += latency['Tx Latency']
+  total_retx += latency['Retx Latency']
+
+total_latency = total_wait + total_trans + total_retx
+n = len(stats.all_packets)
+
+if (n > 0):
+  print ("Average latency is:", float(total_latency) / n)
+  print ("Average waiting latency is:", float(total_wait) / n)
+  print ("Average tx latency is:", float(total_trans) / n)
+  print ("Average retx latency is:", float(total_retx) / n)
+else:
+  print ("Certain message type(s) missing in the provided log.")
+
