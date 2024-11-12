@@ -1,0 +1,49 @@
+Prompt: I want you to define a class `LteDlRetxModifiedAnalyzer` that inherits from a base `Analyzer` class, and monitors downlink MAC retransmission delay and RLC retransmission delay with enhanced calculations:
+
+1. Class Definition: `LteDlRetxModifiedAnalyzer`
+This class extends from a base `Analyzer` class. It initializes the analyzer and sets up source callbacks for message processing. The class uses a nested `RadioBearerEntity` class to manage radio bearers, tracking received packets and handling MAC and RLC retransmissions.
+Through `set_source`, it configures the analyzer to read logs for LTE RLC UL and DL AM PDUs. The `__msg_callback` function is responsible for processing these messages and invoking appropriate handlers for UL and DL callbacks.
+
+2. Custom Data Structure: `RadioBearerEntity`
+This class handles RLC data and control packet processing, maintaining lists for received packets, out-of-order packets, and NACKs. It calculates delays for MAC and RLC retransmissions, adjusting the MAC retransmission delay slightly for enhanced calculations. The class defines methods `recv_rlc_data` and `recv_rlc_ctrl` to process incoming RLC data and control PDUs, respectively.
+
+3. Execution Logic
+Upon execution, the analyzer processes incoming RLC UL and DL AM PDU logs. It tracks retransmissions and calculates delays, storing results in lists for each radio bearer. The outer analyzer file will utilize this class to compute and print average MAC and RLC retransmission delays using the collected data.
+
+Note: This inner analyzer file is designed to be used with an outer analyzer file that sets up the `OfflineReplayer` and runs the analysis, collecting metrics on MAC and RLC retransmissions for further evaluation.
+#!/usr/bin/python
+
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import LteDlRetxAnalyzer
+
+if __name__ == "__main__":
+	src = OfflineReplayer()
+	src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+	lteAnalyzer = LteDlRetxAnalyzer()
+	lteAnalyzer.set_source(src)
+
+	src.run()
+
+	mac_delay = 0.0
+	mac_delay_sample = 0
+	
+	rlc_delay = 0.0
+	rlc_delay_sample = 0
+
+	for _, bearer in lteAnalyzer.bearer_entity.items():
+		for item in bearer.mac_retx:
+			mac_delay += item['mac_retx']
+		mac_delay_sample += len(bearer.mac_retx)
+
+		for item in bearer.rlc_retx:
+			rlc_delay += item['rlc_retx']
+		rlc_delay_sample += len(bearer.rlc_retx)
+
+	avg_mac_delay = float(mac_delay) / mac_delay_sample if mac_delay_sample > 0 else 0.0
+	avg_rlc_delay = float(rlc_delay) / rlc_delay_sample if rlc_delay_sample > 0 else 0.0
+	
+	print("Average MAC retx delay is: ", avg_mac_delay)
+	print("Average RLC retx delay is:", avg_rlc_delay)

@@ -1,0 +1,52 @@
+Prompt: I want you to define a class `ModemDebugAnalyzer` that inherits from a base `Analyzer` class and logs specific modem debug messages.
+
+1. Class Definition: `ModemDebugAnalyzer`
+This class extends the base `Analyzer` class. It sets up its source to capture specific signaling messages by enabling logs for "Modem_debug_message". The `__msg_callback` function processes these messages to extract and log the "Msg" element from the decoded message data.
+
+2. Instructions for Outer Analyzer File:
+- The outer analyzer script should initialize an `OfflineReplayer` as the data source and set the input path to a directory containing the logs.
+- It should enable several specific log types, including "LTE_PHY_Serv_Cell_Measurement", "5G_NR_RRC_OTA_Packet", "LTE_RRC_OTA_Packet", and "LTE_NB1_ML1_GM_DCI_Info".
+- A `MsgLogger` should be configured to decode messages in XML format and save them to a file named "modified_test.txt". This logger should be attached to the data source.
+- An instance of `ModemDebugAnalyzer` should be created and attached to the same data source.
+- Additionally, enable an extra log type, "5G_NR_PHY_Channel_Quality", for monitoring purposes.
+- The script should then execute the monitoring by running the data source.
+#!/usr/bin/python
+# Filename: modem_debug_analyzer.py
+"""
+A debugger for cellular interface
+
+Author: Yuanjie Li
+"""
+
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = ["ModemDebugAnalyzer"]
+
+
+class ModemDebugAnalyzer(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+    def set_source(self, source):
+        """
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """
+        Analyzer.set_source(self, source)
+
+        # Phy-layer logs
+        source.enable_log("Modem_debug_message")
+
+    def __msg_callback(self, msg):
+
+        if msg.type_id == "Modem_debug_message":
+
+            log_item = msg.data.decode()
+
+            if 'Msg' in log_item:
+                self.log_info(log_item["Msg"])

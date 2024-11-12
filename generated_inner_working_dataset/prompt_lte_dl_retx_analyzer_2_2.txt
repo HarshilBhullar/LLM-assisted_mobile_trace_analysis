@@ -1,0 +1,53 @@
+Prompt: I want you to define a class `LteDlRetxAnalyzerModified` that inherits from a base `Analyzer` class, and calculates metrics related to downlink MAC and RLC retransmission delays:
+
+1. Class Definition: `LteDlRetxAnalyzerModified`
+This class extends from a base `Analyzer` class. It should track the retransmission delays for both MAC and RLC layers in a cellular network.
+
+- The `RadioBearerEntityModified` class should:
+  - Store a list of received packets and detect retransmissions based on sequence numbers.
+  - Maintain a list of MAC and RLC retransmission delays.
+  - Increment a retransmission count for each detected retransmission event.
+
+- The `LteDlRetxAnalyzerModified` class should:
+  - Implement a `set_source` method that configures the source to enable logs for "LTE_RLC_UL_AM_All_PDU" and "LTE_RLC_DL_AM_All_PDU".
+  - Implement a message callback function `__msg_callback` to handle incoming logs, and delegate the processing of uplink and downlink RLC messages to dedicated methods.
+  - Calculate the retransmission delays and count the number of retransmissions for each radio bearer entity.
+
+2. Execution Logic
+Upon execution, the `LteDlRetxAnalyzerModified` class will be used in an outer script to process log files. This script should run the analyzer and compute average retransmission delays for MAC and RLC layers, printing these averages to the console. It should also print the total number of retransmissions detected.
+#!/usr/bin/python
+
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import LteDlRetxAnalyzer
+
+if __name__ == "__main__":
+	src = OfflineReplayer()
+	src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+	lteAnalyzer = LteDlRetxAnalyzer()
+	lteAnalyzer.set_source(src)
+
+	src.run()
+
+	mac_delay = 0.0
+	mac_delay_sample = 0
+	
+	rlc_delay = 0.0
+	rlc_delay_sample = 0
+
+	for _, bearer in lteAnalyzer.bearer_entity.items():
+		for item in bearer.mac_retx:
+			mac_delay += item['mac_retx']
+		mac_delay_sample += len(bearer.mac_retx)
+
+		for item in bearer.rlc_retx:
+			rlc_delay += item['rlc_retx']
+		rlc_delay_sample += len(bearer.rlc_retx)
+
+	avg_mac_delay = float(mac_delay) / mac_delay_sample if mac_delay_sample > 0 else 0.0
+	avg_rlc_delay = float(rlc_delay) / rlc_delay_sample if rlc_delay_sample > 0 else 0.0
+	
+	print("Average MAC retx delay is: ", avg_mac_delay)
+	print("Average RLC retx delay is:", avg_rlc_delay)

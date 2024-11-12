@@ -1,0 +1,53 @@
+Prompt: I want you to define a class `TrackCellInfoAnalyzerModified` that inherits from a base `Analyzer` class, and provides modified LTE RRC analysis with additional metrics:
+
+1. Class Definition: `TrackCellInfoAnalyzerModified`
+This class extends from a base `Analyzer` class. It should initialize a state object for LTE RRC status and set callbacks for processing LTE RRC packets. The class should handle events for `LTE_RRC_Serv_Cell_Info` and `LTE_RRC_MIB_Packet`, decoding the message data and updating internal status variables. It should calculate an additional metric based on downlink and uplink bandwidth and log this metric.
+
+2. Packet Processing Functions:
+- `__rrc_filter`: This function filters incoming LTE RRC packets and calls specific callback functions to process the data.
+- `__callback_serv_cell`: This callback updates the current cell status based on `LTE_RRC_Serv_Cell_Info` messages. It initializes the cell status if not already done and updates various parameters like frequency bands, cell ID, and operator based on MNC value. It also calculates an additional metric using the downlink and uplink bandwidths and logs this metric.
+- `__callback_mib_cell`: This callback processes messages from `LTE_RRC_MIB_Packet` to update information such as the number of antennas and downlink bandwidth.
+
+3. Setup Function: `set_source`
+This method sets the trace source for the analyzer, enabling logs for `LTE_RRC_Serv_Cell_Info` and `LTE_RRC_MIB_Packet`.
+
+4. Utility Functions:
+- Provide getter methods for accessing current cell status parameters such as cell ID, TAC, frequencies, bandwidths, and the additional metric. These methods should retrieve the latest values stored in the state object.
+
+The `TrackCellInfoAnalyzerModified` class will be used in the outer analyzer file to evaluate LTE RRC metrics, including the additional metric, during log replay.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, TrackCellInfoAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    track_cell_info_analyzer = TrackCellInfoAnalyzer()
+    track_cell_info_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

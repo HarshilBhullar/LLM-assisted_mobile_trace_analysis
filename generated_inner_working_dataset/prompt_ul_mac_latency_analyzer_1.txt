@@ -1,0 +1,57 @@
+Prompt: I want you to define a class `ModifiedUlMacLatencyAnalyzer` that inherits from a base `Analyzer` class, and enhances uplink MAC layer latency analysis with additional metrics and functionalities:
+
+1. Class Definition: `ModifiedUlMacLatencyAnalyzer`
+- The class should extend from a base `Analyzer` class.
+- The constructor must initialize necessary variables such as `last_bytes`, `buffer`, `ctrl_pkt_sfn`, `cur_fn`, `lat_stat`, `queue_length`, and `total_delay`.
+- A method `set_source` should configure the data source by enabling logs related to "LTE_MAC_UL_Buffer_Status_Internal".
+- The class should handle incoming messages, specifically "LTE_MAC_UL_Buffer_Status_Internal".
+- Use a callback method `__msg_callback` to process each message, decode data, and maintain state information including current frame number (`cur_fn`), buffer status, control packet timings, and latency statistics.
+- Implement methods to track and calculate latency, including packet delay and total delay metrics. These metrics should be broadcasted for further analysis.
+
+2. Message Processing:
+- Handle subpacket samples to extract and track information such as subframe numbers, system frame numbers, new bytes, control bytes, and total bytes.
+- Track and update buffer and control packet information based on these metrics.
+- Calculate and update delay metrics for uplink control packets and regular packets, ensuring that any delay is accumulated into a `total_delay` variable.
+- Ensure the class can handle rollovers in system and subframe numbers appropriately.
+
+3. Broadcasting:
+- Implement broadcasting of calculated delay metrics. This includes broadcasting individual packet delays as well as cumulative total delay metrics.
+- Provide detailed timestamp information with each broadcast to aid in further analysis.
+
+This class will be used in conjunction with an outer analyzer script that sets up the data source, applies this `ModifiedUlMacLatencyAnalyzer`, and orchestrates the logging and analysis of uplink MAC layer latency.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, UlMacLatencyAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    ul_mac_latency_analyzer = UlMacLatencyAnalyzer()
+    ul_mac_latency_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

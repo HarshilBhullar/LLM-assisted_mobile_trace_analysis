@@ -1,0 +1,56 @@
+Prompt: I want you to define a class `TrackCellInfoAnalyzerModified` that inherits from a base `Analyzer` class to extend its capabilities with additional metrics and processing functions for LTE RRC messages. This class will be used in conjunction with an outer analyzer script to perform offline analysis on cellular log data.
+
+1. Class Definition: `TrackCellInfoAnalyzerModified`
+This class extends the `Analyzer` class and is tasked with processing LTE RRC messages to extract and maintain the status of the current cell. It should initialize internal states to store cell information such as downlink and uplink frequency, bandwidth, tracking area code (TAC), and operator information. Additionally, it should calculate a new metric, the average frequency, based on downlink and uplink frequencies.
+
+2. Message Filtering and Processing
+The class should implement functions to handle specific LTE RRC message types:
+   - `LTE_RRC_Serv_Cell_Info`: Extracts and updates the current cell status with downlink and uplink frequency, bandwidth, allowed access, cell ID, TAC, and operator information. It should also compute the average frequency and broadcast this information.
+   - `LTE_RRC_MIB_Packet`: Extracts MIB-related information such as the number of antennas, downlink bandwidth, and physical cell ID, and sends an event with this data.
+
+3. Source Configuration
+The `set_source` function should be implemented to configure the trace source by enabling the necessary logs for LTE RRC messages, specifically `LTE_RRC_Serv_Cell_Info` and `LTE_RRC_MIB_Packet`.
+
+4. Additional Getter Methods
+The class should provide additional methods to retrieve the current cell's status, including cell ID, TAC, frequency bands, bandwidth, allowed access, operator, band indicator, and the newly defined average frequency metric.
+
+5. Integration with the Outer Analyzer Script
+The class should be capable of being integrated with an outer analyzer script that handles offline analysis by replaying logs. The outer script will utilize this class to track and analyze cell information, leveraging the additional metrics and processing capabilities defined within.
+
+This setup will allow the outer analyzer script to perform detailed analysis of cellular logs, focusing on LTE RRC protocol metrics and modifications introduced in the `TrackCellInfoAnalyzerModified` class.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, TrackCellInfoAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    track_cell_info_analyzer = TrackCellInfoAnalyzer()
+    track_cell_info_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

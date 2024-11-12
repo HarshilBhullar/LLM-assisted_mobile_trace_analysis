@@ -1,0 +1,56 @@
+Prompt: I need you to define a class `UlMacLatencyAnalyzerV2` that inherits from a base `Analyzer` class and extends the functionality of an existing `UlMacLatencyAnalyzer`. The goal is to monitor and manage uplink latency breakdown with additional metrics.
+
+1. Class Definition: `UlMacLatencyAnalyzerV2`
+- This class should extend from the base `Analyzer` class.
+- The constructor should initialize the base `Analyzer` class and set up data structures to track MAC layer buffering and processing metrics. This includes maintaining records of the last bytes in MAC UL buffer, buffered MAC UL packets, timestamps for control packets, and current system frame numbers.
+- It should also track new metric: total latency across all packets.
+
+2. Source Configuration Function: `set_source`
+- This function should enable the necessary logs for analysis. Specifically, it should enable the log for `"LTE_MAC_UL_Buffer_Status_Internal"` to track uplink buffer status.
+
+3. Message Callback Function: `__msg_callback`
+- This function should process incoming messages to update latency and buffering statistics.
+- For MAC UL Buffer Status logs, parse the samples to update current system frame numbers and manage buffered packets based on new, control, and total bytes.
+- Calculate latency for control packets and data packets, broadcasting this information. Ensure that total latency is updated and included in the broadcast.
+- Include logic to handle invalid system frame numbers and reset states if a time lag is detected.
+
+4. Additional Utility Functions:
+- Implement any helper functions necessary for managing the latency statistics (e.g., resetting statistics, calculating delays).
+
+This class will be used in an outer script to analyze uplink latency metrics and should efficiently handle large datasets provided through offline log replay.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, UlMacLatencyAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    ul_mac_latency_analyzer = UlMacLatencyAnalyzer()
+    ul_mac_latency_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

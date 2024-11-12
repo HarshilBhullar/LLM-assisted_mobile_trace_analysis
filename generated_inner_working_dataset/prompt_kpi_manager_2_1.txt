@@ -1,0 +1,59 @@
+Prompt: I want you to define a class `KPIManagerModified` that inherits from a base `Analyzer` class, and serves as an enhanced interface for tracking and querying KPIs with additional functionalities:
+
+1. Class Definition: `KPIManagerModified`
+This class extends from a base `Analyzer` class. It initializes by checking and loading all supported KPI analyzers, maintaining a mapping between KPI names and their respective analyzer classes. The class provides functionalities to list available KPIs, enable monitoring for all or specific KPIs, and query KPI values locally or remotely.
+
+2. KPI Management Functions:
+   - `__check_kpis`: Dynamically loads all KPI analyzer classes from the `mobile_insight.analyzer.kpi` module and builds a dictionary of supported KPIs.
+   - `list_kpis`: Returns a list of all available KPI names.
+   - `enable_all_kpis`: Enables monitoring for all supported KPIs, with an option to store the KPI data locally.
+   - `enable_kpi`: Activates monitoring for a specific KPI, allowing modifications to its behavior such as periodicity adjustments for certain KPI types. Includes error handling for unsupported KPIs.
+   - `local_query_kpi`: Queries the locally observed KPI value based on the specified name and optionally a timestamp.
+   - `remote_query_kpi`: Queries the remote cloud service for KPI values, based on various parameters including phone model, operator, GPS, and timestamp.
+
+3. Modified Behavior:
+   - Implements a modified calculation approach where certain KPIs have their monitoring periodicity adjusted, specifically changing the periodicity for accessibility KPIs to a longer interval.
+
+4. Error Handling:
+   - Includes robust error handling to manage scenarios where KPIs are not supported or have not been activated, providing informative warnings and attempts to activate the KPI if necessary.
+# Usage: python kpi=manager-test.py [dirname]
+# Example1: python kpi-manager-test-experimental.py logs/bler_sample.mi2log 
+# (For testing KPI BLER)
+# Example2: python kpi-manager-test-experimental.py logs/data_sample.mi2log 
+# (For testing KPI DL_PDCP_LOSS, HANDOVER_PREDICTION, HANDOVER_LATENCY, HANDOVER_HOL)
+# import os
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.kpi import KPIManager, KpiAnalyzer
+import cProfile
+
+
+def kpi_manager_example():
+
+    src = OfflineReplayer()
+    src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+    kpi_manager = KPIManager()
+    # print "All supported KPIs:", str(kpi_manager.list_kpis())
+
+    # Test experimental KPIs - data plane
+    kpi_manager.enable_kpi("KPI.Wireless.BLER") # test log: bler_sample
+    kpi_manager.enable_kpi("KPI.Wireless.DL_PDCP_LOSS") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Wireless.UL_PDCP_LOSS")
+
+    # Test experimental KPIs - handover
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_PREDICTION") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_LATENCY") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_HOL") # test log: data_sample
+
+    kpi_manager.set_source(src)
+
+    src.run()
+
+
+if __name__ == '__main__':
+    kpi_manager_example()
+
+
+

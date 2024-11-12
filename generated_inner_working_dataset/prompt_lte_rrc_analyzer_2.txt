@@ -1,0 +1,59 @@
+Prompt: I want you to define a class `LteRrcAnalyzerModified` that inherits from a base `ProtocolAnalyzer` class, and enhances the analysis of LTE Radio Resource Control (RRC) protocols:
+
+1. Class Definition: `LteRrcAnalyzerModified`
+This class extends from the `ProtocolAnalyzer` class and is designed to modify the LTE RRC analysis. It should initialize a state machine to handle different RRC states such as IDLE, CRX, SDRX, and LDRX. The class should manage internal states for cell status and history, and configure packet filters for RRC messages.
+
+2. State Machine and Message Processing
+Create a state machine that defines transitions between RRC states based on incoming messages. Implement methods to initialize protocol states and update the state machine as messages are processed. The state machine should handle transitions such as idle to connected state (CRX), and connected state back to idle.
+
+3. Callback Functions
+Implement callback functions to handle specific RRC message types:
+   - `__callback_rrc_conn`: Update connectivity status based on connection setup and release messages.
+   - `__callback_sib_config`: Extract configurations from System Information Blocks (SIBs) to determine radio threshold settings and reselection parameters.
+   - `__callback_rrc_reconfig`: Analyze RRCReconfiguration messages for active state configurations such as measurement profiles and MAC/RLC/PDCP configurations.
+   - `__callback_drx`: Broadcast DRX state changes to other applications.
+
+4. Profile Hierarchy
+Create a method to return a profile hierarchy for LTE RRC configurations, encapsulating both idle and active state configurations. This hierarchy should include status metadata, serving cell configurations, intra-frequency, and inter-frequency handoff configurations.
+
+5. Additional Functionality
+Implement methods to manage and retrieve cell configurations and the mobility history. Allow querying of the current cell ID, frequency, and status.
+
+6. Code Integration
+The `LteRrcAnalyzerModified` class should be integrated with an outer analyzer script that initializes a data source and sets it to read specific LTE and NR logs. The outer script should utilize the modified analyzer to process these logs and extract meaningful insights about RRC protocol interactions.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LteRrcAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_rrc_analyzer = LteRrcAnalyzer()
+    lte_rrc_analyzer.set_source(src)  # bind with the monitor
+
+    # Start the monitoring
+    src.run()

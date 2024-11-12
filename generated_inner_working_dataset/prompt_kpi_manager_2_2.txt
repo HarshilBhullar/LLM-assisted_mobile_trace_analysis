@@ -1,0 +1,60 @@
+Prompt: I want you to define a class `KPIManagerModified` that inherits from a base `Analyzer` class to provide an enhanced interface for tracking and querying KPIs with additional metrics and functionalities. This class is designed to be used in conjunction with an outer analyzer script that will evaluate and manage various KPIs related to wireless communication.
+
+1. Class Definition: `KPIManagerModified`
+   - This class extends from the `Analyzer` base class and is responsible for tracking and querying KPIs.
+   - Utilize the `__check_kpis` method to dynamically identify and register all available KPIs, associating each KPI name with its corresponding `KpiAnalyzer` class.
+   - Implement a method `list_kpis` to return a list of available KPIs.
+   - Provide methods for enabling KPIs, such as `enable_all_kpis`, which enables monitoring for all available KPIs, and `enable_kpi`, which activates a specific KPI with options to modify its periodicity and storage settings.
+   - Add functionality to `enable_kpi` to adjust the periodicity of KPI monitoring by appending '_MOD' to the KPI name, and to set additional attributes like cell information.
+
+2. Querying KPIs
+   - Implement methods for querying KPIs both locally and remotely.
+   - The `local_query_kpi` method should retrieve the locally observed KPI, with options for additional processing of results.
+   - The `remote_query_kpi` method should enable querying of KPIs from a remote source, applying additional checks and processing as needed.
+
+3. Logging and Error Handling
+   - Include comprehensive logging to inform users about the status of KPI activation and querying.
+   - Handle exceptions and provide informative warnings or errors when KPIs cannot be activated or queried.
+
+This class will be used in an outer analyzer file to enable and query specific KPIs, such as BLER, DL_PDCP_LOSS, HANDOVER_PREDICTION, and HANDOVER_LATENCY, as part of a broader KPI management system. The outer script will utilize the `KPIManagerModified` class to set up the data source, enable desired KPIs, and execute the analysis on a given input file.
+# Usage: python kpi=manager-test.py [dirname]
+# Example1: python kpi-manager-test-experimental.py logs/bler_sample.mi2log 
+# (For testing KPI BLER)
+# Example2: python kpi-manager-test-experimental.py logs/data_sample.mi2log 
+# (For testing KPI DL_PDCP_LOSS, HANDOVER_PREDICTION, HANDOVER_LATENCY, HANDOVER_HOL)
+# import os
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.kpi import KPIManager, KpiAnalyzer
+import cProfile
+
+
+def kpi_manager_example():
+
+    src = OfflineReplayer()
+    src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+    kpi_manager = KPIManager()
+    # print "All supported KPIs:", str(kpi_manager.list_kpis())
+
+    # Test experimental KPIs - data plane
+    kpi_manager.enable_kpi("KPI.Wireless.BLER") # test log: bler_sample
+    kpi_manager.enable_kpi("KPI.Wireless.DL_PDCP_LOSS") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Wireless.UL_PDCP_LOSS")
+
+    # Test experimental KPIs - handover
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_PREDICTION") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_LATENCY") # test log: data_sample
+    kpi_manager.enable_kpi("KPI.Mobility.HANDOVER_HOL") # test log: data_sample
+
+    kpi_manager.set_source(src)
+
+    src.run()
+
+
+if __name__ == '__main__':
+    kpi_manager_example()
+
+
+

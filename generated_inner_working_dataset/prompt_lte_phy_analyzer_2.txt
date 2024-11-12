@@ -1,0 +1,59 @@
+Prompt: I want you to define a class `ModifiedLtePhyAnalyzer` that inherits from a base `Analyzer` class, and processes LTE PHY layer messages for advanced analysis.
+
+1. Class Definition: `ModifiedLtePhyAnalyzer`
+This class should extend the base `Analyzer` class. It should handle multiple LTE PHY-layer messages to extract and analyze specific metrics. Key functionalities should include:
+   - Set up message callbacks for specific LTE PHY messages like PDSCH, PUCCH, and PUSCH.
+   - Maintain counters for recording downlink and uplink bandwidth, modulation scheme statistics, and CQI values.
+
+2. Callback Functions
+Implement callback functions for different message types:
+   - `callback_pdsch`: Process the `LTE_PHY_PDSCH_Packet` messages to calculate and log downlink bandwidth and modulation statistics. Update counters for modulation schemes like QPSK, 16QAM, and 64QAM.
+   - `callback_pucch`: Handle `LTE_PHY_PUCCH_Tx_Report` messages to log PUCCH transmission power and detect scheduling requests.
+   - `callback_pusch`: Update CQI values from `LTE_PHY_PUSCH_CSF` messages to aid in bandwidth prediction.
+   - `callback_pusch_tx`: Analyze `LTE_PHY_PUSCH_Tx_Report` messages to broadcast PUSCH transmission power.
+   - `callback_pusch_grant`: Calculate uplink grant utilization from `LTE_MAC_UL_Tx_Statistics` to determine uplink bandwidth.
+
+3. Bandwidth Prediction
+Implement a `predict_bw` function that utilizes a pre-trained CQI-to-bandwidth mapping to estimate downlink bandwidth based on the current CQI, and broadcast this prediction.
+
+4. Message Processing
+Ensure the `__msg_callback` function handles incoming messages by routing them to the appropriate callback function based on the message type identifier.
+
+5. Broadcasting and Logging
+Utilize broadcasting to share analyzed information and logging to record insights for each processed message, including predicted and actual bandwidth, modulation schemes, and transmission power data.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LtePhyAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_phy_analyzer = LtePhyAnalyzer()
+    lte_phy_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

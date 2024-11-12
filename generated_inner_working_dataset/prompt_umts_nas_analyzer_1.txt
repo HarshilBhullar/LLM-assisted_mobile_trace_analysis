@@ -1,0 +1,65 @@
+Prompt: Define a class `UmtsNasAnalyzerModified` that inherits from a base `ProtocolAnalyzer` class, and is used to analyze UMTS NAS layer (MM/GMM/CM/SM) packets, reporting additional metrics:
+
+1. Class Definition: `UmtsNasAnalyzerModified`
+This class should extend the `ProtocolAnalyzer` class. It must initialize the base class and set up necessary packet filters using `add_source_callback` for processing NAS messages. It should define and manage state machines for MM, GMM, and CM states, capturing state transitions and reporting current states.
+
+2. State Machines:
+   - **MM State Machine**: Detects transitions between idle, waiting for network command, waiting for outgoing connection, and connection active states based on `UMTS_NAS_MM_State` message types.
+   - **GMM State Machine**: Handles transitions between registered and deregistered states using `UMTS_NAS_GMM_State` messages.
+   - **CM State Machine**: Manages call setup processes, handling transitions through service request, setup, call proceeding, alerting, connect, and disconnect states, parsed from `UMTS_NAS_OTA_Packet`.
+
+3. Message Callbacks:
+   - **NAS Filter (`__nas_filter`)**: Processes NAS messages, including MM, GMM, and OTA packets. It should decode these messages, update respective state machines, and log state transitions.
+   - **MM State Callback (`__callback_mm_state`)**: Updates MM status based on received messages and broadcasts the updated state.
+   - **MM Registration State Callback (`__callback_mm_reg_state`)**: Updates registration-specific attributes like PLMN, LAC, and RAC from MM registration state messages.
+   - **GMM State Callback (`__callback_gmm_state`)**: Updates and broadcasts GMM state information.
+   - **NAS Messages Callback (`__callback_nas`)**: Extracts MM status and configurations from NAS messages, updates the status, and maintains a profile of QoS parameters.
+
+4. QoS and DRX Parameter Management:
+   - The class should capture and update DRX parameters and QoS metrics (e.g., delay class, reliability, throughput, and bitrate details) from the NAS messages.
+   - Maintain abstractions for negotiated and requested QoS, providing methods to report on data rate profiles and delivery profiles.
+
+5. Profile Hierarchy:
+   - Define a `create_profile_hierarchy` method that returns a UMTS NAS ProfileHierarchy for managing configurations.
+
+6. Integration with Outer Analyzer:
+   - Ensure the class can be used as a source for the `OfflineReplayer` in the outer analyzer script.
+   - Provide necessary methods for setting the trace source and enabling relevant logs (`UMTS_NAS_OTA_Packet`, `UMTS_NAS_GMM_State`, `UMTS_NAS_MM_State`, etc.).
+
+The above instructions will be used to generate a new inner analyzer file, which will then be utilized as part of a larger script to evaluate UMTS NAS layer metrics and state transitions.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, UmtsNasAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    umts_nas_analyzer = UmtsNasAnalyzer()
+    umts_nas_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

@@ -1,0 +1,50 @@
+Prompt: I want you to define a class `LteMeasurementAnalyzerMod` that inherits from a base `Analyzer` class, and analyzes LTE radio measurements:
+
+1. Class Definition: `LteMeasurementAnalyzerMod`
+This class extends from the base `Analyzer` class. It should be configured to read specific LTE radio measurement logs, enabling the logs for different LTE PHY measurements such as connected mode intra-frequency, serving cell, neighbor cell, and inter-RAT measurements. The constructor initializes with a callback for filtering user equipment (UE) events, and sets up lists to store RSRP and RSRQ measurements, along with a variable for average RSRP.
+
+2. Event Handling Function: `ue_event_filter`
+The `ue_event_filter` function acts as a callback to process incoming messages related to LTE measurements. It should specifically handle messages of type "LTE_PHY_Connected_Mode_Intra_Freq_Meas". For each message, it should extract relevant data, such as RSRP and RSRQ values, and log these measurements along with the number of neighbor cells. The function should also compute and log the average RSRP value across all received measurements.
+
+3. Data Access Methods:
+- `get_rsrp_list`: Returns a list of RSRP measurements for the serving cell.
+- `get_rsrq_list`: Returns a list of RSRQ measurements for the serving cell.
+- `get_avg_rsrp`: Returns the average RSRP value calculated from the measurements.
+
+The class should be designed to be used with an external script (like the outer analyzer file) that sets up the data source and runs the analyzer to evaluate LTE measurements, leveraging the MobileInsight library for processing telecom signaling data.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LteMeasurementAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_meas_analyzer = LteMeasurementAnalyzer()
+    lte_meas_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

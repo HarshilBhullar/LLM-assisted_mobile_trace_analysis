@@ -1,0 +1,60 @@
+Prompt: I want you to define a class `ModifiedMmAnalyzer` that inherits from a base `Analyzer` class, and returns adjusted metrics for MM state changes with additional analysis:
+
+1. Class Definition: `ModifiedMmAnalyzer`
+This class extends from the base `Analyzer` class and overrides the functionality to analyze the MM state changes of a phone. It should capture various time spans and logs specific to UMTS and LTE networks, such as normal service, PLMN search, attach, and update procedures. The analyzer should also introduce new metrics, such as counting the number of LTE PLMN searches.
+
+2. Methods for Log Retrieval:
+The class should provide methods to retrieve logs for different time spans and events, including UMTS and LTE normal service, PLMN searches, attach procedures, and other relevant updates. These methods should return logs in a span format, indicating the start and end times of each event.
+
+3. Callback Functions:
+Implement a series of callback functions that process different types of network events. These functions should parse event data, initiate or terminate spans, and update internal logs based on the type of event (e.g., `UMTS_NAS_GMM_State`, `LTE_NAS_EMM_State`, and various RRC and NAS message types).
+
+4. Source Configuration:
+The class should be able to set its source using the `set_source` method, enabling the necessary logs for analysis. The analyzer must handle out-of-order timestamps and ensure accurate span calculations by managing potential message delays or reordering.
+
+5. Metric Calculation:
+In addition to analyzing time spans, the class should calculate specific metrics, such as the number of LTE RRC reconfigurations and the count of LTE PLMN searches. These metrics should be accessible through dedicated methods.
+
+6. XML Parsing:
+Utilize XML parsing to extract detailed information from message contents, especially for complex message types like `LTE_RRC_OTA_Packet` and `UMTS_NAS_OTA_Packet`. This information is crucial for accurate span logging and event characterization.
+
+7. Output:
+The analyzer should maintain a structured log of all processed events, allowing external scripts to access and utilize this data for further analysis or reporting.
+
+Note: The `ModifiedMmAnalyzer` class will be used in conjunction with an outer analyzer file that initializes and runs this class to evaluate metrics from cellular network logs.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, MmAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    mm_analyzer = MmAnalyzer()
+    mm_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

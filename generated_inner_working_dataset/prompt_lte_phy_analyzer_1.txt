@@ -1,0 +1,62 @@
+Prompt: I want you to define a class `LtePhyAnalyzerModified` that inherits from a base `Analyzer` class, and provides enhanced bandwidth prediction and modulation statistics for 4G PHY layer messages:
+
+1. Class Definition: `LtePhyAnalyzerModified`
+   - This class extends from the `Analyzer` class found in the MobileInsight library.
+   - Through the `set_source` function, it configures the source to read specific LTE PHY layer logs such as `LTE_PHY_PDSCH_Packet`, `LTE_PHY_PUSCH_CSF`, `LTE_MAC_UL_Tx_Statistics`, `LTE_PHY_PUCCH_Tx_Report`, and `LTE_PHY_PUSCH_Tx_Report`.
+   - The constructor initializes various counters and variables to track downlink and uplink bandwidth, modulation schemes, and CQI values.
+   - The class must implement a custom bandwidth prediction using a predefined CQI to bandwidth mapping.
+
+2. Message Callback Handling: `__msg_callback`
+   - This function processes different types of LTE PHY messages.
+   - For `LTE_PHY_PDSCH_Packet`: It logs and calculates downlink bandwidth and modulation statistics. It also predicts downlink bandwidth using current CQI values.
+   - For `LTE_PHY_PUSCH_CSF`: It captures and logs CQI values for uplink.
+   - For `LTE_MAC_UL_Tx_Statistics`: It determines uplink grant utilization and calculates uplink bandwidth.
+   - For `LTE_PHY_PUCCH_Tx_Report`: It analyzes and logs PUCCH scheduling requests and related SR events.
+   - For `LTE_PHY_PUSCH_Tx_Report`: It logs power measurements related to PUSCH transmissions.
+
+3. Bandwidth Prediction Function: `predict_bw`
+   - Predicts downlink bandwidth based on current CQI values using a predefined CQI to bandwidth mapping table.
+   - Logs and broadcasts the predicted bandwidth.
+
+4. Execution Context:
+   - This analyzer will be used in a script that processes log files to evaluate 4G PHY layer metrics.
+   - It should work seamlessly with an outer analyzer file that initializes an `OfflineReplayer` and processes logs using this custom analyzer class.
+   - The outer analyzer file will ensure that logs for the specified LTE PHY events are enabled and processed through the `LtePhyAnalyzerModified`.
+
+Ensure that the analyzer is robust, efficiently processes the logs, and accurately logs and broadcasts the necessary metrics for further analysis in an outer script.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LtePhyAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_phy_analyzer = LtePhyAnalyzer()
+    lte_phy_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

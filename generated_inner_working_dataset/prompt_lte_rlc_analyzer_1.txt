@@ -1,0 +1,54 @@
+Prompt: I want you to define a class `ModifiedLteRlcAnalyzer` that inherits from a base `Analyzer` class to obtain link layer information with adjusted metrics:
+
+1. Class Definition: `ModifiedLteRlcAnalyzer`
+This class extends from the base `Analyzer` class and is designed to provide detailed RLC layer information with modified metrics for both uplink and downlink. It initializes necessary attributes, including buffers for storing SN and acknowledgment data, as well as counters for cumulative data statistics.
+
+2. Configuration: `set_source`
+The `set_source` method configures the analyzer to process specific types of logs by enabling logs for uplink and downlink RLC configuration packets, as well as all PDUs for both uplink and downlink in AM mode.
+
+3. Message Processing: `__msg_callback`
+The `__msg_callback` function processes various RLC messages, implementing the following logic:
+   - For `LTE_RLC_UL_Config_Log_Packet` and `LTE_RLC_DL_Config_Log_Packet`, it manages the configuration of radio bearers and broadcasts information about configuration changes.
+   - For `LTE_RLC_UL_AM_All_PDU`, it calculates and logs the instantaneous uplink throughput and frame costs by examining SN acknowledgments and PDU bytes.
+   - For `LTE_RLC_DL_AM_All_PDU`, it performs similar operations for downlink throughput and frame costs, ensuring timely acknowledgment processing.
+
+4. Performance Metrics
+The modified analyzer outputs logs for instantaneous throughput calculations and frame costs, tailored to provide insights into data transfer efficiency. It handles data and control PDUs differently to ensure accurate throughput reporting and acknowledgment timing.
+
+These features should be implemented to enable the outer analyzer script to monitor RLC layer activities effectively and gather performance metrics.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LteRlcAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_rlc_analyzer = LteRlcAnalyzer()
+    lte_rlc_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

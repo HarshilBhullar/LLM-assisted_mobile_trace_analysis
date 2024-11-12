@@ -1,0 +1,56 @@
+Prompt: I want you to define a class `ModemDebugAnalyzer` that inherits from a base `Analyzer` class to facilitate debugging for the cellular interface:
+
+1. Class Definition: `ModemDebugAnalyzer`
+   - Extend from the base `Analyzer` class.
+   - In the `set_source` method, configure the source to enable logging of "Modem_debug_message" to capture specific modem debug messages.
+   - Implement the `__msg_callback` function to process incoming messages. If the message type is "Modem_debug_message", decode the message data and log the contents.
+
+2. Instructions for Outer Analyzer File:
+   - Initialize a monitor using `OfflineReplayer` and set the input path to the logs directory.
+   - Enable logging for additional message types such as "LTE_PHY_Serv_Cell_Measurement", "5G_NR_RRC_OTA_Packet", "LTE_RRC_OTA_Packet", and "LTE_NB1_ML1_GM_DCI_Info".
+   - Utilize the `MsgLogger` class to log messages in XML format to a file named "test_modified.txt".
+   - Create an instance of `ModemDebugAnalyzer` and set its source to the initialized monitor.
+   - Implement additional functionality by defining a custom callback function to calculate the total number of "Modem_debug_message" messages processed.
+   - Add this custom callback to the `ModemDebugAnalyzer` instance.
+   - Execute the monitoring with `src.run()`.
+   - After execution, print the total number of "Modem_debug_message" messages processed, demonstrating the use of the custom analyzer to track a specific metric.
+#!/usr/bin/python
+# Filename: modem_debug_analyzer.py
+"""
+A debugger for cellular interface
+
+Author: Yuanjie Li
+"""
+
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = ["ModemDebugAnalyzer"]
+
+
+class ModemDebugAnalyzer(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+    def set_source(self, source):
+        """
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """
+        Analyzer.set_source(self, source)
+
+        # Phy-layer logs
+        source.enable_log("Modem_debug_message")
+
+    def __msg_callback(self, msg):
+
+        if msg.type_id == "Modem_debug_message":
+
+            log_item = msg.data.decode()
+
+            if 'Msg' in log_item:
+                self.log_info(log_item["Msg"])

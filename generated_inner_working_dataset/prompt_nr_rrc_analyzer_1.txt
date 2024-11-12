@@ -1,0 +1,58 @@
+Prompt: I want you to define a class `NrRrcAnalyzerModified` that inherits from a base `ProtocolAnalyzer` class, and performs enhanced analysis on NR RRC packets:
+
+1. Class Definition: `NrRrcAnalyzerModified`
+This class extends the `ProtocolAnalyzer` to analyze NR Radio Resource Control (RRC) protocol messages in a 5G network. It should filter and process all NR RRC packets, specifically focusing on `5G_NR_RRC_OTA_Packet` messages. The class should be capable of tracking cell status and configurations, handling messages related to RRC connections, reconfigurations, and system information blocks (SIBs).
+
+   - **Initialization**: Configure the analyzer to add a source callback for filtering NR RRC packets. Initialize internal states to manage current cell status, configuration history, and active configurations.
+
+   - **Message Filtering**: Implement a `__rrc_filter` method to process messages. For each `5G_NR_RRC_OTA_Packet`, decode the message, update the cell status, and invoke callbacks for RRC connection updates and reconfiguration handling.
+
+   - **Callbacks**:
+     - `__callback_rrc_conn`: Update the connectivity status based on RRC Setup Complete and RRC Release messages.
+     - `__callback_rrc_reconfig`: Extract measurement and report configurations from RRC Reconfiguration messages, and update internal state with new configurations.
+     - `__callback_sib_config`: (Optional) Extract and process configurations from System Information Blocks, though currently unimplemented.
+
+2. Integration Requirements:
+   - **Source Configuration**: The analyzer should enable `5G_NR_RRC_OTA_Packet` logging from the trace source using a `set_source` method, preparing it for offline log analysis.
+   - **Data Extraction and Logging**: Implement methods to extract and return current cell status, configuration details, and mobility history. Use logging to output significant events and configuration changes.
+
+3. Utilization: The `NrRrcAnalyzerModified` class should be used in conjunction with an `OfflineReplayer` to analyze log files in a 5G NR network setup. The outer analyzer script will utilize this class to evaluate metrics related to NR RRC connections and configurations, leveraging its ability to track and log changes in cell and measurement configurations.
+
+Code for the outer analyzer will be appended here.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, \
+    NrRrcAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    # Analyzers
+    nr_rrc_analyzer = NrRrcAnalyzer()
+    nr_rrc_analyzer.set_source(src)  # bind with the monitor
+   
+    src.run()

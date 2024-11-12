@@ -1,0 +1,48 @@
+Prompt: I want you to define a class `ModifiedLteMacAnalyzer` that inherits from a base `Analyzer` class, and adds enhanced analysis functions for LTE MAC-layer packets:
+
+1. Class Definition: `ModifiedLteMacAnalyzer`
+This class extends from a base `Analyzer` class. It should set up callback functions to process specific LTE MAC-layer messages and perform enhanced analysis such as UL grant utilization and delay calculations for UL control packets. The class should maintain internal state to track packet delays and queue lengths.
+
+2. Log Parsing and Analysis:
+- Process `LTE_MAC_UL_Tx_Statistics` messages to calculate UL grant utilization. The calculation should be slightly altered from the original method, and the results should be broadcasted and logged.
+- Parse `LTE_MAC_UL_Buffer_Status_Internal` messages to maintain a buffer and compute delays for UL control packets. These delays should take into account additional metrics and be broadcasted.
+- Handle `LTE_PHY_PDSCH_Stat_Indication` messages to track HARQ failures and compute retransmission delays with additional metrics.
+
+3. Execution Logic:
+Upon running the analysis with this custom analyzer, the script should process the log data through the configured analyzer. It should broadcast and log key metrics such as UL grant utilization, packet delays, queue lengths, and retransmission statistics. This analyzer will be used in conjunction with an outer analyzer script that sets up the data source and runs the analysis.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger,  LteMacAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_mac_analyzer = LteMacAnalyzer()
+    lte_mac_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()
