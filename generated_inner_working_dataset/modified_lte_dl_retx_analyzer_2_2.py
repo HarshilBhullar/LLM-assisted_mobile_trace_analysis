@@ -3,8 +3,9 @@
 # Filename: lte_dl_retx_analyzer_modified.py
 
 """
-Function: Monitor downlink MAC retransmission delay and RLC retransmission delay with modified metrics
+Function: Monitor downlink MAC retransmission delay and RLC retransmission delay
 Author: Qianru Li
+Modified by: [Your Name]
 """
 
 from mobile_insight.analyzer.analyzer import *
@@ -20,7 +21,7 @@ def comp_seq_num(s1, s2):
 		return -1
 	return 1
 
-class RadioBearerEntity():
+class RadioBearerEntityModified():
 	def __init__(self, num):
 		self.__idx 			= num
 
@@ -32,6 +33,7 @@ class RadioBearerEntity():
 
 		self.mac_retx = []
 		self.rlc_retx = []
+		self.retx_count = 0  # new metric for counting retransmissions
 
 
 	def recv_rlc_data(self, pdu, timestamp):
@@ -50,7 +52,8 @@ class RadioBearerEntity():
 			# rlc retx packet
 			if sn in self.__loss_detected_time:
 				if (timestamp - self.__loss_detected_time[sn][1]).total_seconds() < 1:
-					self.rlc_retx.append({'timestamp': timestamp, 'sn':sn, 'rlc_retx':(sys_time - self.__loss_detected_time[sn][0] + 10240) % 10240 + 5})
+					self.rlc_retx.append({'timestamp': timestamp, 'sn':sn, 'rlc_retx':(sys_time - self.__loss_detected_time[sn][0] + 10240) % 10240})
+					self.retx_count += 1  # increment retx_count
 				self.__loss_detected_time.pop(sn)
 
 			# mac retx packet
@@ -63,7 +66,8 @@ class RadioBearerEntity():
 					if comp_seq_num(before[0], sn) == -1 and comp_seq_num(sn, after[0]) == -1:
 						delay = (sys_time - after[1] + 10240) % 10240
 						if delay > 0 and delay < 200:
-							self.mac_retx.append({'timestamp': timestamp, 'sn':sn, 'mac_retx':delay + 3})
+							self.mac_retx.append({'timestamp': timestamp, 'sn':sn, 'mac_retx':delay})
+							self.retx_count += 1  # increment retx_count
 						break
 
 			self.__pkt_disorder.append([sn, sys_time, timestamp])
@@ -116,12 +120,16 @@ class RadioBearerEntity():
 				break
 
 			if pkt[0] in self.__loss_detected_time:
-				self.rlc_retx.append({'timestamp': pkt[2], 'sn':sn, 'rlc_retx':(pkt[1] - self.__loss_detected_time[pkt[0]][0] + 10240) % 10240 + 5})
+				self.rlc_retx.append({'timestamp': pkt[2], 'sn':sn, 'rlc_retx':(pkt[1] - self.__loss_detected_time[pkt[0]][0] + 10240) % 10240})
+				self.retx_count += 1  # increment retx_count
 				self.__loss_detected_time.pop(pkt[0])
 				self.__nack_dict.pop(pkt[0])
 
 		if idx >= 0:
 			del self.__pkt_disorder[:idx + 1]
+
+	def get_retx_count(self):
+		return self.retx_count
 
 
 class LteDlRetxAnalyzerModified(Analyzer):
@@ -152,7 +160,7 @@ class LteDlRetxAnalyzerModified(Analyzer):
 			return
 
 		if cfg_idx not in self.bearer_entity:
-			self.bearer_entity[cfg_idx] = RadioBearerEntity(cfg_idx)
+			self.bearer_entity[cfg_idx] = RadioBearerEntityModified(cfg_idx)
 
 		for pdu in subpkt['RLCUL PDUs']:
 			if pdu['PDU TYPE'] == 'RLCUL CTRL' and 'RLC CTRL NACK' in pdu:
@@ -168,9 +176,13 @@ class LteDlRetxAnalyzerModified(Analyzer):
 		timestamp = log_item['timestamp']
 
 		if cfg_idx not in self.bearer_entity:
-			self.bearer_entity[cfg_idx] = RadioBearerEntity(cfg_idx)
+			self.bearer_entity[cfg_idx] = RadioBearerEntityModified(cfg_idx)
 
 		records = subpkt['RLCDL PDUs']
 		for pdu in records:
 			if pdu['PDU TYPE'] == 'RLCDL DATA':
 				self.bearer_entity[cfg_idx].recv_rlc_data(pdu, timestamp)
+
+	def print_retx_count(self):
+		total_retx = sum(entity.get_retx_count() for entity in self.bearer_entity.values())
+		print(f"Total retransmissions: {total_retx}")

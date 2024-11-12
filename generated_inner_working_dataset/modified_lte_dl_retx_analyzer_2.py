@@ -1,9 +1,9 @@
 
 #!/usr/bin/python
-# Filename: lte_dl_retx_analyzer_modified.py
+# Filename: lte_dl_retx_modified_analyzer.py
 
 """
-Function: Monitor downlink MAC retransmission delay and RLC retransmission delay with modified metrics
+Function: Monitor downlink MAC retransmission delay and RLC retransmission delay with enhanced calculations
 Author: Qianru Li
 """
 
@@ -11,7 +11,7 @@ from mobile_insight.analyzer.analyzer import *
 import datetime
 import sys
 
-__all__ = ["LteDlRetxAnalyzerModified"]
+__all__ = ["LteDlRetxModifiedAnalyzer"]
 
 def comp_seq_num(s1, s2):
 	if s1 == s2:
@@ -50,7 +50,7 @@ class RadioBearerEntity():
 			# rlc retx packet
 			if sn in self.__loss_detected_time:
 				if (timestamp - self.__loss_detected_time[sn][1]).total_seconds() < 1:
-					self.rlc_retx.append({'timestamp': timestamp, 'sn':sn, 'rlc_retx':(sys_time - self.__loss_detected_time[sn][0] + 10240) % 10240 + 5})
+					self.rlc_retx.append({'timestamp': timestamp, 'sn':sn, 'rlc_retx':(sys_time - self.__loss_detected_time[sn][0] + 10240) % 10240})
 				self.__loss_detected_time.pop(sn)
 
 			# mac retx packet
@@ -63,7 +63,7 @@ class RadioBearerEntity():
 					if comp_seq_num(before[0], sn) == -1 and comp_seq_num(sn, after[0]) == -1:
 						delay = (sys_time - after[1] + 10240) % 10240
 						if delay > 0 and delay < 200:
-							self.mac_retx.append({'timestamp': timestamp, 'sn':sn, 'mac_retx':delay + 3})
+							self.mac_retx.append({'timestamp': timestamp, 'sn':sn, 'mac_retx':delay * 1.1})  # Slightly adjusted delay calculation
 						break
 
 			self.__pkt_disorder.append([sn, sys_time, timestamp])
@@ -116,7 +116,7 @@ class RadioBearerEntity():
 				break
 
 			if pkt[0] in self.__loss_detected_time:
-				self.rlc_retx.append({'timestamp': pkt[2], 'sn':sn, 'rlc_retx':(pkt[1] - self.__loss_detected_time[pkt[0]][0] + 10240) % 10240 + 5})
+				self.rlc_retx.append({'timestamp': pkt[2], 'sn':sn, 'rlc_retx':(pkt[1] - self.__loss_detected_time[pkt[0]][0] + 10240) % 10240})
 				self.__loss_detected_time.pop(pkt[0])
 				self.__nack_dict.pop(pkt[0])
 
@@ -124,7 +124,7 @@ class RadioBearerEntity():
 			del self.__pkt_disorder[:idx + 1]
 
 
-class LteDlRetxAnalyzerModified(Analyzer):
+class LteDlRetxModifiedAnalyzer(Analyzer):
 	def __init__(self):
 		Analyzer.__init__(self)
 		self.add_source_callback(self.__msg_callback)

@@ -1,9 +1,9 @@
 
 #!/usr/bin/python
-# Filename: lte_dl_retx_analyzer_modified.py
+# Filename: modified_lte_dl_retx_analyzer.py
 
 """
-Function: Monitor downlink MAC retransmission delay and RLC retransmission delay with adjusted calculations
+Function: Monitor downlink MAC retransmission delay and RLC retransmission delay with adjusted threshold for delay calculations.
 Author: Qianru Li
 """
 
@@ -11,7 +11,7 @@ from mobile_insight.analyzer.analyzer import *
 import datetime
 import sys
 
-__all__ = ["LteDlRetxAnalyzerModified"]
+__all__ = ["ModifiedLteDlRetxAnalyzer"]
 
 def comp_seq_num(s1, s2):
 	if s1 == s2:
@@ -20,7 +20,7 @@ def comp_seq_num(s1, s2):
 		return -1
 	return 1
 
-class RadioBearerEntity():
+class ModifiedRadioBearerEntity():
 	def __init__(self, num):
 		self.__idx 			= num
 
@@ -32,6 +32,7 @@ class RadioBearerEntity():
 
 		self.mac_retx = []
 		self.rlc_retx = []
+
 
 	def recv_rlc_data(self, pdu, timestamp):
 		if 'LSF' in pdu and pdu['LSF'] == 0:
@@ -61,8 +62,7 @@ class RadioBearerEntity():
 						break
 					if comp_seq_num(before[0], sn) == -1 and comp_seq_num(sn, after[0]) == -1:
 						delay = (sys_time - after[1] + 10240) % 10240
-						# Adjusted delay range for MAC retx
-						if delay > 5 and delay < 250:
+						if delay > 0 and delay < 250:  # Adjusted threshold
 							self.mac_retx.append({'timestamp': timestamp, 'sn':sn, 'mac_retx':delay})
 						break
 
@@ -124,7 +124,7 @@ class RadioBearerEntity():
 			del self.__pkt_disorder[:idx + 1]
 
 
-class LteDlRetxAnalyzerModified(Analyzer):
+class ModifiedLteDlRetxAnalyzer(Analyzer):
 	def __init__(self):
 		Analyzer.__init__(self)
 		self.add_source_callback(self.__msg_callback)
@@ -152,7 +152,7 @@ class LteDlRetxAnalyzerModified(Analyzer):
 			return
 
 		if cfg_idx not in self.bearer_entity:
-			self.bearer_entity[cfg_idx] = RadioBearerEntity(cfg_idx)
+			self.bearer_entity[cfg_idx] = ModifiedRadioBearerEntity(cfg_idx)
 
 		for pdu in subpkt['RLCUL PDUs']:
 			if pdu['PDU TYPE'] == 'RLCUL CTRL' and 'RLC CTRL NACK' in pdu:
@@ -168,7 +168,7 @@ class LteDlRetxAnalyzerModified(Analyzer):
 		timestamp = log_item['timestamp']
 
 		if cfg_idx not in self.bearer_entity:
-			self.bearer_entity[cfg_idx] = RadioBearerEntity(cfg_idx)
+			self.bearer_entity[cfg_idx] = ModifiedRadioBearerEntity(cfg_idx)
 
 		records = subpkt['RLCDL PDUs']
 		for pdu in records:
