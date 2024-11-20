@@ -1,0 +1,133 @@
+Prompt: I want you to write the outer analyzer script using the `MsgStatistics` class from the inner analyzer file to analyze cellular message statistics and arrival intervals.
+
+1. Analysis Function: `analyze_msg_statistics`
+- Set up an `OfflineReplayer` as the data source with your input path to the trace logs.
+- Create an instance of `MsgStatistics` and configure it with the data source `OfflineReplayer`.
+- Execute the analysis by running the data source.
+
+2. Execution Logic
+- Once the analysis completes, gather the results from the `MsgStatistics` instance.
+- Save the message type statistics to a file named 'msg_type_statistics.txt'. Each line should contain a message type followed by its count.
+- Calculate the arrival intervals between consecutive messages of the same type and save the results to 'msg_arrival_rate.txt'. Each line should include a message type followed by the calculated intervals in milliseconds.
+- Perform additional processing on the message length statistics:
+  - For each message type, compute the total and average message length.
+  - Save these statistics in a file named 'msg_length_summary.txt', where each line contains the message type, total length, and average length.
+
+Code Structure:
+```python
+#!/usr/bin/python
+
+import sys
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.msg_statistics import MsgStatistics
+
+def analyze_msg_statistics(input_path):
+    src = OfflineReplayer()
+    src.set_input_path(input_path)
+
+    statistics = MsgStatistics()
+    statistics.set_source(src)
+
+    src.run()
+
+    # Save message type statistics
+    with open('msg_type_statistics.txt', 'w') as f_statistics:
+        for item in statistics.msg_type_statistics:
+            f_statistics.write(f"{item} {statistics.msg_type_statistics[item]}\n")
+
+    # Save message arrival rate statistics
+    with open('msg_arrival_rate.txt', 'w') as f_rate:
+        for item in statistics.msg_arrival_rate:
+            f_rate.write(f"{item} ")
+            for k in range(1, len(statistics.msg_arrival_rate[item])):
+                interval = (statistics.msg_arrival_rate[item][k] - statistics.msg_arrival_rate[item][k - 1]).total_seconds() * 1000
+                f_rate.write(f"{interval} ")
+            f_rate.write("\n")
+
+    # Save message length statistics
+    with open('msg_length_summary.txt', 'w') as f_msg_len:
+        for item in statistics.msg_lengh:
+            total_length = sum(statistics.msg_lengh[item])
+            average_length = total_length / len(statistics.msg_lengh[item]) if statistics.msg_lengh[item] else 0
+            f_msg_len.write(f"{item} Total Length: {total_length} Average Length: {average_length}\n")
+
+if __name__ == "__main__":
+    input_path = sys.argv[1]
+    analyze_msg_statistics(input_path)
+```
+
+This prompt guides the creation of an outer analyzer file that utilizes the `MsgStatistics` class to analyze and record statistics on message types, arrival intervals, and message lengths from cellular network logs.
+#!/usr/bin/python
+# Filename: msg_statistics.py
+"""
+A simple analyzer to study the cellular message statistics and arrival interval time
+
+Author: Yuanjie Li
+"""
+
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = ["MsgStatistics"]
+
+
+class MsgStatistics(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+    def reset(self):
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+    def set_source(self, source):
+        """
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """
+        Analyzer.set_source(self, source)
+        source.enable_log_all()
+
+    def __msg_callback(self, msg):
+
+        log_item = msg.data.decode()
+
+        if msg.type_id not in self.msg_type_statistics:
+            self.msg_type_statistics[msg.type_id] = 1
+        else:
+            self.msg_type_statistics[msg.type_id] = self.msg_type_statistics[msg.type_id] + 1
+
+        if msg.type_id not in self.msg_arrival_rate:
+            self.msg_arrival_rate[msg.type_id] = [log_item["timestamp"]]
+        else:
+            self.msg_arrival_rate[msg.type_id].append(log_item["timestamp"])
+
+        if msg.type_id not in self.msg_lengh:
+
+            if "log_msg_len" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["log_msg_len"]]
+            elif "Msg Length" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["Msg Length"]]
+            elif "Message Length" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item["Message Length"]]
+            # TODO: For EMM/ESM, why the metadata header does not have msg
+            # length?
+        else:
+            if "log_msg_len" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["log_msg_len"])
+            elif "Msg Length" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["Msg Length"])
+            elif "Message Length" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item["Message Length"])

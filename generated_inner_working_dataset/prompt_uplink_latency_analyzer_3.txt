@@ -1,0 +1,74 @@
+Prompt: I want you to define a class `UplinkLatencyAnalyzerModified` that inherits from a base `Analyzer` class, and returns modified metrics for uplink packet latency:
+
+1. Class Definition: `UplinkLatencyAnalyzerModified`
+The class should extend from a base `Analyzer`. It initializes metrics for tracking uplink transmission statistics such as error blocks and cumulative blocks for both uplink and downlink. It also maintains queues to track packet buffering and transmission. The class should be capable of receiving and processing logs for uplink latency analysis by enabling specific message types relevant to the analysis.
+
+2. Source Configuration:
+In the `set_source` method, configure the Analyzer to enable logs for "LTE_PHY_PUSCH_Tx_Report" and "LTE_MAC_UL_Buffer_Status_Internal" to capture necessary data for uplink latency computation.
+
+3. Message Processing: `__msg_callback`
+Implement a callback function to process messages:
+   - For "LTE_PHY_PUSCH_Tx_Report", parse transmission records to accumulate statistics about packet retransmissions and compute modified latency metrics.
+   - For "LTE_MAC_UL_Buffer_Status_Internal", manage packet queue operations to calculate waiting and transmission latencies. Update the queue based on changes in buffer status, and store these metrics appropriately.
+
+4. Utility Functions:
+   - Implement helper functions to compute time differences between packet events and manage time updates for frame number (FN) and subframe number (SFN) to facilitate latency calculations.
+   - Maintain a dictionary to temporarily store packet latency metrics, which aggregates waiting, transmission, and retransmission latencies.
+
+This class will be used in an outer analyzer script to compute average uplink latency metrics for a given set of logs.
+#!/usr/bin/python
+
+import os
+import sys
+import shutil
+import traceback
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import UplinkLatencyAnalyzer
+
+
+
+def uplink_latency_analysis():
+    src = OfflineReplayer()
+    # src.set_input_path("./logs/latency_sample.mi2log")
+    src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+    # print (sys.argv[1])
+
+    analyzer = UplinkLatencyAnalyzer()
+    analyzer.set_source(src)
+
+    src.run()
+
+    return analyzer
+
+
+stats = uplink_latency_analysis()
+# print stats.all_packets
+# print stats.cum_err_block
+# print stats.cum_block
+
+total_latency = 0
+total_wait = 0
+total_trans = 0
+total_retx = 0
+
+total_retx = 8 * stats.cum_err_block[0]
+for latency in stats.all_packets:
+  total_wait += latency['Waiting Latency']
+  total_trans += latency['Tx Latency']
+  total_retx += latency['Retx Latency']
+
+total_latency = total_wait + total_trans + total_retx
+n = len(stats.all_packets)
+
+if (n > 0):
+  print ("Average latency is:", float(total_latency) / n)
+  print ("Average waiting latency is:", float(total_wait) / n)
+  print ("Average tx latency is:", float(total_trans) / n)
+  print ("Average retx latency is:", float(total_retx) / n)
+else:
+  print ("Certain message type(s) missing in the provided log.")
+

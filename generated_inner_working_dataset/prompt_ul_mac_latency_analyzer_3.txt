@@ -1,0 +1,66 @@
+Prompt: I want you to define a class `ModifiedUlMacLatencyAnalyzer` that inherits from a base `Analyzer` class, and returns enhanced metrics for uplink MAC layer latency:
+
+1. Class Definition: `ModifiedUlMacLatencyAnalyzer`
+   This class extends from a base `Analyzer` class to monitor and manage uplink latency breakdown with additional metrics. The class should be able to initialize necessary variables to track MAC UL buffer status, manage packets, and calculate latency.
+
+   - Initialize with:
+     - `last_bytes`: Tracks the last remaining bytes in MAC UL buffer.
+     - `buffer`: Stores buffered MAC UL packets with timestamps.
+     - `ctrl_pkt_sfn`: Records when the last MAC UL control packet arrives.
+     - `cur_fn`: Tracks the current frame number for MAC UL buffer.
+     - `lat_stat`: Logs uplink waiting latency details.
+     - `queue_length`: Monitors the length of the packet queue.
+     - `total_sent_packets`: New metric to count total packets sent.
+
+   - Set Source:
+     - Configure the trace source to enable cellular signaling messages, specifically the "LTE_MAC_UL_Buffer_Status_Internal" log for PHY-layer analysis.
+
+2. Message Callback Function: `__msg_callback`
+   Processes each message by decoding the data to manage and log uplink latency. It should handle the following:
+
+   - Monitor the "LTE_MAC_UL_Buffer_Status_Internal" log for updates on MAC UL buffer status.
+   - Track frame numbers to detect and handle packet lags.
+   - Analyze `LCID` data to update buffer status, calculate new and control bytes, and determine total bytes.
+   - Compute and log control packet delay metrics.
+   - Calculate sent bytes and update the latency statistics, logging them with timestamps.
+   - Broadcast information on UL packet delay and total sent packets for further analysis.
+
+3. Broadcast Functionality:
+   - Implement broadcasting of metrics such as "UL_CTRL_PKT_DELAY" and "UL_PKT_DELAY" with timestamp and delay information.
+   - Include broadcasting of total sent packets using "TOTAL_SENT_PACKETS" for comprehensive metric analysis.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, UlMacLatencyAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    ul_mac_latency_analyzer = UlMacLatencyAnalyzer()
+    ul_mac_latency_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

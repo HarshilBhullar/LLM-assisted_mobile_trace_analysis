@@ -1,0 +1,53 @@
+Prompt: I want you to define a class `LteMeasurementAnalyzerModified` that inherits from a base `Analyzer` class, and processes LTE radio measurements:
+
+1. Class Definition: `LteMeasurementAnalyzerModified`
+This class extends from a base `Analyzer` class. The constructor initializes the base class and sets up lists to store RSRP and RSRQ measurements for the serving cell, as well as average RSRP for neighbor cells. The class should filter LTE measurement events using the `ue_event_filter` callback function and handle specific message types related to LTE measurements.
+
+2. Source Configuration: `set_source`
+The `set_source` method configures which LTE internal logs to read by enabling specific log types such as "LTE_PHY_Connected_Mode_Intra_Freq_Meas", "LTE_PHY_Serv_Cell_Measurement", "LTE_PHY_Connected_Mode_Neighbor_Measurement", "LTE_PHY_Inter_RAT_Measurement", and "LTE_PHY_Inter_RAT_CDMA_Measurement".
+
+3. Message Handling: `ue_event_filter`
+The `ue_event_filter` function processes incoming messages, particularly focusing on "LTE_PHY_Connected_Mode_Intra_Freq_Meas" message types. It extracts and logs RSRP and RSRQ values, calculates the average RSRP of neighbor cells, and appends these values to the respective lists. The logs should include timestamps and measurement details for both serving and neighbor cells.
+
+4. Data Retrieval Functions:
+- `get_rsrp_list`: Returns a list of RSRP measurements for the serving cell.
+- `get_rsrq_list`: Returns a list of RSRQ measurements for the serving cell.
+- `get_avg_neighbor_rsrp_list`: Returns a list of average RSRP values for neighbor cells. 
+
+These functions will allow the outer analyzer script to access the processed measurement data for further analysis or reporting.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, LteMeasurementAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    lte_meas_analyzer = LteMeasurementAnalyzer()
+    lte_meas_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()

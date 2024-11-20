@@ -1,0 +1,127 @@
+Prompt: I want you to define a class `LteMeasurementAnalyzer` that inherits from a base `Analyzer` class, and processes LTE radio measurements:
+
+1. Class Definition: `LteMeasurementAnalyzer`
+The class should extend from the base `Analyzer` class. In the constructor, initialize the base class and set up an event filter with a callback function `ue_event_filter`. Define lists to store RSRP and RSRQ measurements. The `set_source` method should enable logs for various LTE internal events, such as "LTE_PHY_Connected_Mode_Intra_Freq_Meas" and "LTE_PHY_Serv_Cell_Measurement".
+
+The `ue_event_filter` function should handle user events and call a specific method to process serving cell RSRP and RSRQ measurements when an "LTE_PHY_Connected_Mode_Intra_Freq_Meas" message is received. This method should log the measurements and append them to the respective lists. Provide methods `get_rsrp_list` and `get_rsrq_list` to return these lists.
+
+2. Instructions for Outer Analyzer
+Create a script that uses the `LteMeasurementAnalyzer` class from the inner analyzer file to evaluate and log LTE radio measurements. The script should:
+
+- Initialize an `OfflineReplayer` as the data source, setting the input path to the directory containing log files.
+- Enable specific logs for LTE and 5G events using the `OfflineReplayer`.
+- Instantiate a `MsgLogger` to log decoded messages to a file in XML format.
+- Set the source of the `MsgLogger` to the `OfflineReplayer`.
+- Instantiate the `LteMeasurementAnalyzer` and set its source to the `OfflineReplayer`.
+- Define a function `calculate_and_log_average` to compute the average RSRP and RSRQ from the measurements collected by the `LteMeasurementAnalyzer`. Log these averages to both a file and the console.
+- Run the monitoring process using the `OfflineReplayer`.
+- After the monitoring completes, call `calculate_and_log_average` to process and log the average metrics.
+#!/usr/bin/python
+# Filename: lte_measurement_analyzer.py
+"""
+An analyzer for LTE radio measurements
+
+Author: Yuanjie Li
+"""
+
+from .analyzer import *
+
+import datetime
+
+
+class LteMeasurementAnalyzer(Analyzer):
+    """
+    An analyzer for LTE radio measurements
+    """
+
+    def __init__(self):
+
+        Analyzer.__init__(self)
+
+        # init packet filters
+        self.add_source_callback(self.ue_event_filter)
+
+        self.serv_cell_rsrp = []  # rsrp measurements
+        self.serv_cell_rsrq = []  # rsrq measurements
+
+    def set_source(self, source):
+        """
+        Set the source of the trace.
+        Enable device's LTE internal logs.
+
+        :param source: the source trace collector
+        :param type: trace collector
+        """
+        Analyzer.set_source(self, source)
+        # enable user's internal events
+        source.enable_log("LTE_PHY_Connected_Mode_Intra_Freq_Meas")
+        source.enable_log("LTE_PHY_Serv_Cell_Measurement")
+        source.enable_log("LTE_PHY_Connected_Mode_Neighbor_Measurement")
+        source.enable_log("LTE_PHY_Inter_RAT_Measurement")
+        source.enable_log("LTE_PHY_Inter_RAT_CDMA_Measurement")
+
+    def ue_event_filter(self, msg):
+        """
+        callback to handle user events
+
+        :param source: the source trace collector
+        :param type: trace collector
+        """
+        # TODO: support more user events
+        self.serving_cell_rsrp(msg)
+
+    def serving_cell_rsrp(self, msg):
+        if msg.type_id == "LTE_PHY_Connected_Mode_Intra_Freq_Meas":
+
+            msg_dict = dict(msg.data.decode())
+            date = msg_dict['timestamp'].strftime('%Y-%m-%d %H:%M:%S.%f')
+            rsrp_log = (str(date) +
+                        ":" +
+                        self.__class__.__name__ +
+                        ' RSRP=' +
+                        str(msg_dict['RSRP(dBm)']) +
+                        'dBm' +
+                        ' RSRQ=' +
+                        str(msg_dict['RSRQ(dB)']) +
+                        'dB' +
+                        ' # of neighbors=' +
+                        str(msg_dict['Number of Neighbor Cells']) +
+                        '\n')
+
+            for item in msg_dict["Neighbor Cells"]:
+                rsrp_log = (rsrp_log
+                            + '    Cell_ID=' + str(item["Physical Cell ID"])
+                            + ' RSRP=' + str(item["RSRP(dBm)"]) + 'dBm'
+                            + ' RSRQ=' + str(item["RSRQ(dB)"]) + 'dB'
+                            + '\n')
+
+            self.log_info(rsrp_log)
+
+            self.serv_cell_rsrp.append(msg_dict['RSRP(dBm)'])
+            self.serv_cell_rsrq.append(msg_dict['RSRQ(dB)'])
+
+        # if msg.type_id == "LTE_PHY_Inter_RAT_Measurement":
+        #     msg_dict=dict(msg.data.decode())
+        #     self.log_info(str(msg_dict))
+
+        # if msg.type_id == "LTE_PHY_Inter_RAT_CDMA_Measurement":
+        #     msg_dict=dict(msg.data.decode())
+        #     self.log_info(str(msg_dict))
+
+    def get_rsrp_list(self):
+        """
+        Get serving cell's RSRP measurement
+
+        :returns: a list of serving cell's measurement
+        :rtype: list
+        """
+        return self.serv_cell_rsrp
+
+    def get_rsrq_list(self):
+        """
+        Get serving cell's RSRQ measurement
+
+        :returns: a list of serving cell's measurement
+        :rtype: list
+        """
+        return self.serv_cell_rsrq

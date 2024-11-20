@@ -1,0 +1,61 @@
+Prompt: I want you to define a class `WcdmaRrcAnalyzerModified` that inherits from a base `ProtocolAnalyzer` class, and returns modified metrics for WCDMA RRC protocol:
+
+1. Class Definition: `WcdmaRrcAnalyzerModified`
+This class should extend from the `ProtocolAnalyzer` class. It is designed to analyze WCDMA (3G) Radio Resource Control (RRC) protocol messages with modifications to certain metrics. The class should initialize with internal states to keep track of current cell status, history, and configurations. It should also declare a state machine for RRC states and set up packet filters to process incoming messages.
+
+2. State Machine: 
+Declare an RRC state machine to track transitions between different RRC states like `CELL_FACH`, `CELL_DCH`, `URA_PCH`, `CELL_PCH`, and `IDLE`. The initial state should be determined based on the `WCDMA_RRC_States` messages.
+
+3. Message Processing:
+Implement a message processing function `__rrc_filter` to filter WCDMA RRC packets and call respective callbacks for each type of message:
+   - `WCDMA_RRC_Serv_Cell_Info`: Update the current cell status using the `__callback_serv_cell` function.
+   - `WCDMA_RRC_States`: Update RRC state using `__callback_rrc_state` and manage state transitions in the state machine.
+   - `WCDMA_RRC_OTA_Packet`: Extract and process System Information Blocks (SIBs) configurations using `__callback_sib_config`.
+
+4. Configuration and Status Reporting:
+Provide methods to report current cell status and configurations, including both idle and active-state configurations. The `dump` functions in the status and configuration classes should return strings encoding the respective information.
+
+5. Profile Hierarchy:
+Define a method `create_profile_hierarchy` to return a `ProfileHierarchy` for WCDMA RRC, capturing configurations such as serving cell configurations, intra-frequency, and inter-frequency parameters.
+
+6. Modified Metrics:
+Ensure that certain calculations within the callbacks, such as frequency and thresholds in SIB configurations, are modified as specified (e.g., multiplying by factors).
+
+7. Integration with Outer Analyzer:
+The class should integrate seamlessly with the outer analyzer script, running within the MobileInsight framework to analyze logs and provide detailed RRC metrics for WCDMA networks.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+"""
+Offline analysis by replaying logs
+"""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, WcdmaRrcAnalyzer
+
+if __name__ == "__main__":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path("./logs/")
+    # src.enable_log_all()
+
+    src.enable_log("LTE_PHY_Serv_Cell_Measurement")
+    src.enable_log("5G_NR_RRC_OTA_Packet")
+    src.enable_log("LTE_RRC_OTA_Packet")
+    src.enable_log("LTE_NB1_ML1_GM_DCI_Info")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as("./test.txt")
+    logger.set_source(src)
+
+    wcdma_rrc_analyzer = WcdmaRrcAnalyzer()
+    wcdma_rrc_analyzer.set_source(src)  # bind with the monitor
+
+    # Start the monitoring
+    src.run()
