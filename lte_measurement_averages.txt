@@ -1,0 +1,1 @@
+Average RSRP: 0.00 dBm, Average RSRQ: 0.00 dB

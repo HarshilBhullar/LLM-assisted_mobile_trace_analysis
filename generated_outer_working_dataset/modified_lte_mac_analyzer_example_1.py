@@ -39,7 +39,6 @@ if __name__ == "__main__":
     count = 0
 
     def custom_msg_callback(msg):
-        nonlocal total_grant_received, total_grant_utilized, count
         if msg.type_id == "LTE_MAC_UL_Tx_Statistics":
             log_item = msg.data.decode()
 

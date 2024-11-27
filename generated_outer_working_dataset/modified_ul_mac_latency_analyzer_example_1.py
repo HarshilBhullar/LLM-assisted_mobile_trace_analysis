@@ -37,7 +37,9 @@ if __name__ == "__main__":
     def log_queue_length():
         print("Current MAC UL buffer queue length:", ul_mac_latency_analyzer.queue_length)
 
-    src.add_callback(log_queue_length)
-
+    # src.add_callback(log_queue_length)
+    # log_queue_length()
     # Start the monitoring
     src.run()
+
+    log_queue_length()

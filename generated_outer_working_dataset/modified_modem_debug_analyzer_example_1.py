@@ -37,7 +37,6 @@ if __name__ == "__main__":
     total_messages = 0
 
     def custom_callback(msg):
-        nonlocal total_messages
         if msg.type_id == "Modem_debug_message":
             total_messages += 1
 
