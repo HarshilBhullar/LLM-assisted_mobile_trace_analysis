@@ -1,0 +1,783 @@
+input,expected_output,actual_output
+"
+        You are an AI assistant that generates code for inner analyzers using the Mobileinsight-core Python library, a library that enables below-IP,         fine-grained mobile network analytics on end devices. It is a cross-platform package for mobile network monitoring and analysis.
+
+        For context, I will be giving a few examples of a prompt + outer analyzer code pairs along with their corresponding expected inner analyzer code.
+
+        Then I will give the main target prompt that you need to follow in order to generate an inner analyzer.
+
+        NOTE: PLEASE PROVIDE ONLY THE CODE AND NOTHING ELSE, AS THIS OUTPUT IS BEING DIRECTLY SAVED TO A .PY FILE AND RAN AUTONOMOUSLY.         ADDITIONALLY, ENSURE THAT YOU PROVIDE THE FULL COMPLETE CODE, AND DO NOT LEAVE OUT ANY PARTS FOR THE USER TO COMPLETE. THE CODE SHOULD FULLY RUN         WITH NO ADDITIONAL MODIFICATIONS REQUIRED.
+        Example 1:
+Prompt: I want you to define a class `ModemDebugAnalyzerModified` that inherits from a base `Analyzer` class, and processes modem debug messages to extract specific metrics:
+
+1. Class Definition: `ModemDebugAnalyzerModified`
+This class extends from the base `Analyzer` class. It configures the source by enabling logs for ""Modem_debug_message"". It processes these messages through the `__msg_callback` function, which decodes incoming messages and performs additional analyses:
+   - Logs the original modem debug message.
+   - Computes and logs the word count of the message.
+   - Checks for the presence of the keyword 'Error' within the message and logs its detection.
+
+2. Integration with Outer Analyzer: 
+The class will be integrated into an outer analyzer script, which utilizes the `ModemDebugAnalyzerModified` class to evaluate metrics from the replayed logs. 
+
+3. Execution Logic:
+The outer analyzer will set the input path for the log files, initialize the `ModemDebugAnalyzerModified` class, and configure it with an `OfflineReplayer` as the data source. The analysis is executed by replaying the logs, processing each message to extract and log the specified metrics, and saving the results to a specified output file. The execution should be robust, handling any potential exceptions during log replay and analysis.
+#!/usr/bin/python
+# Filename: offline-analysis-example.py
+import os
+import sys
+
+""""""
+Offline analysis by replaying logs
+""""""
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer import MsgLogger, ModemDebugAnalyzer
+if __name__ == ""__main__"":
+
+    # Initialize a monitor
+    src = OfflineReplayer()
+    src.set_input_path(""./logs/"")
+    # src.enable_log_all()
+
+    src.enable_log(""LTE_PHY_Serv_Cell_Measurement"")
+    src.enable_log(""5G_NR_RRC_OTA_Packet"")
+    src.enable_log(""LTE_RRC_OTA_Packet"")
+    src.enable_log(""LTE_NB1_ML1_GM_DCI_Info"")
+
+    logger = MsgLogger()
+    logger.set_decode_format(MsgLogger.XML)
+    logger.set_dump_type(MsgLogger.FILE_ONLY)
+    logger.save_decoded_msg_as(""./test.txt"")
+    logger.set_source(src)
+
+    modem_debug_analyzer = ModemDebugAnalyzer()
+    modem_debug_analyzer.set_source(src)
+
+    # Start the monitoring
+    src.run()
+
+ Expected Output:
+#!/usr/bin/python
+# Filename: modem_debug_analyzer_modified.py
+""""""
+A modified debugger for cellular interface with additional metrics
+
+Author: Yuanjie Li (Modified)
+""""""
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = [""ModemDebugAnalyzerModified""]
+
+class ModemDebugAnalyzerModified(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+    def set_source(self, source):
+        """"""
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """"""
+        Analyzer.set_source(self, source)
+
+        # Phy-layer logs
+        source.enable_log(""Modem_debug_message"")
+
+    def __msg_callback(self, msg):
+
+        if msg.type_id == ""Modem_debug_message"":
+
+            log_item = msg.data.decode()
+
+            if 'Msg' in log_item:
+                # Log the original message
+                self.log_info(log_item[""Msg""])
+
+                # Additional metric: count the number of words in the message
+                word_count = len(log_item[""Msg""].split())
+                self.log_info(f""Word count in message: {word_count}"")
+
+                # Additional metric: check if 'Error' keyword is in the message
+                if 'Error' in log_item[""Msg""]:
+                    self.log_info(""Error keyword detected in message."")
+
+Example 2:
+Prompt: I want you to define a class `MsgStatisticsModified` that inherits from a base `Analyzer` class, and returns statistics for cellular messages, including message type counts, arrival intervals, and average message lengths:
+
+1. Class Definition: `MsgStatisticsModified`
+This class extends from a base `Analyzer` class. It should initialize and maintain dictionaries to store message type statistics, arrival intervals, lengths, and average lengths. The `set_source` method sets the trace source and enables all cellular signaling messages.
+
+2. Message Processing: `__msg_callback`
+The `__msg_callback` function processes each message to update the statistics:
+   - For each message, update the count of the message type.
+   - Record the timestamp for arrival intervals.
+   - Capture the message length from fields like `log_msg_len`, `Msg Length`, or `Message Length`.
+   - Calculate the average message length for each message type.
+
+3. Reset Functionality: `reset`
+Include a `reset` method to clear all statistics, allowing the analyzer to be reused for different analysis sessions.
+
+This class will be used by the outer analyzer file to evaluate metrics such as message type statistics, arrival intervals, and average message lengths from offline log data.
+#!/usr/bin/python
+# Filename: msg-statistics-example.py
+import os
+import sys
+
+# Import MobileInsight modules
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.msg_statistics import MsgStatistics
+
+""""""
+This example shows how to get basic statistics of a offline log
+""""""
+if __name__ == ""__main__"":
+
+    # Initialize a 3G/4G monitor
+    src = OfflineReplayer()
+    src.set_input_path(""./offline_log_example.mi2log"")
+
+    statistics = MsgStatistics()
+    statistics.set_source(src)
+
+    # Start the monitoring
+    src.run()
+
+    # Save results
+    f_statistics = open('./msg_type_statistics.txt', 'w')
+    for item in statistics.msg_type_statistics:
+        f_statistics.write(
+            item + "" "" + str(statistics.msg_type_statistics[item]) + ""\n"")
+    f_statistics.close()
+
+    f_rate = open('./msg_arrival_rate.txt', 'w')
+    for item in statistics.msg_arrival_rate:
+        f_rate.write(item + "" "")
+        for k in range(1, len(statistics.msg_arrival_rate[item])):
+            f_rate.write(str(
+                (statistics.msg_arrival_rate[item][k] - statistics.msg_arrival_rate[item][k - 1]).total_seconds() * 1000) + "" "")
+        f_rate.write(""\n"")
+    f_rate.close()
+
+    f_msg_len = open('./msg_length.txt', 'w')
+    for item in statistics.msg_lengh:
+        f_msg_len.write(item + "" "")
+        for k in range(0, len(statistics.msg_lengh[item])):
+            f_msg_len.write(str(statistics.msg_lengh[item][k]) + "" "")
+        f_msg_len.write(""\n"")
+    f_msg_len.close()
+
+ Expected Output:
+#!/usr/bin/python
+# Filename: msg_statistics_modified.py
+""""""
+A modified analyzer to study the cellular message statistics, arrival interval time,
+and calculate the average message length
+
+Author: Yuanjie Li
+""""""
+
+
+from mobile_insight.analyzer.analyzer import *
+
+__all__ = [""MsgStatisticsModified""]
+
+
+class MsgStatisticsModified(Analyzer):
+
+    def __init__(self):
+        Analyzer.__init__(self)
+
+        self.add_source_callback(self.__msg_callback)
+
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+        self.msg_avg_length = {}  # type_id->average message length
+
+    def reset(self):
+        self.msg_type_statistics = {}  # type_id->msg_count
+
+        self.msg_arrival_rate = {}  # type_id->list of arrival interval
+
+        self.msg_lengh = {}  # type_id->list of message length
+
+        self.msg_avg_length = {}  # type_id->average message length
+
+    def set_source(self, source):
+        """"""
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """"""
+        Analyzer.set_source(self, source)
+        source.enable_log_all()
+
+    def __msg_callback(self, msg):
+
+        log_item = msg.data.decode()
+
+        if msg.type_id not in self.msg_type_statistics:
+            self.msg_type_statistics[msg.type_id] = 1
+        else:
+            self.msg_type_statistics[msg.type_id] = self.msg_type_statistics[msg.type_id] + 1
+
+        if msg.type_id not in self.msg_arrival_rate:
+            self.msg_arrival_rate[msg.type_id] = [log_item[""timestamp""]]
+        else:
+            self.msg_arrival_rate[msg.type_id].append(log_item[""timestamp""])
+
+        if msg.type_id not in self.msg_lengh:
+            if ""log_msg_len"" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item[""log_msg_len""]]
+            elif ""Msg Length"" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item[""Msg Length""]]
+            elif ""Message Length"" in log_item:
+                self.msg_lengh[msg.type_id] = [log_item[""Message Length""]]
+        else:
+            if ""log_msg_len"" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item[""log_msg_len""])
+            elif ""Msg Length"" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item[""Msg Length""])
+            elif ""Message Length"" in log_item:
+                self.msg_lengh[msg.type_id].append(log_item[""Message Length""])
+
+        # Calculate average message length
+        if msg.type_id in self.msg_lengh:
+            total_length = sum(self.msg_lengh[msg.type_id])
+            count = len(self.msg_lengh[msg.type_id])
+            self.msg_avg_length[msg.type_id] = total_length / count if count > 0 else 0
+
+Example 3:
+Prompt: I want you to define a class `KPIManagerModified` that inherits from a base `Analyzer` class, providing modified calculations and logging for KPIs:
+
+1. Class Definition: `KPIManagerModified`
+This class extends the `Analyzer` class to offer a unified interface for tracking and querying KPIs. It includes a mechanism to identify and load supported KPIs from the `mobile_insight` library.
+
+   - Initialization: The constructor initializes the base `Analyzer` class and calls a helper function `__check_kpis` which dynamically identifies supported KPI analyzers by inspecting the `mobile_insight.analyzer.kpi` module. It logs the available KPIs.
+
+   - KPI Listing: The `list_kpis` function returns a list of all available KPI names that can be monitored.
+
+   - KPI Enabling: The `enable_kpi` function allows for enabling a specific KPI by its name. It includes modifications such as logging additional information when a KPI is activated. It also allows setting a periodicity and whether to enable local storage.
+
+   - Enable All: The `enable_all_kpis` method enables monitoring for all identified KPIs.
+
+2. KPI Query Functions:
+   - Local Query: `local_query_kpi` allows querying the locally observed KPI values. It includes modified logic to adjust query behavior based on a given mode (e.g., 'cell') and logs additional information based on the query mode.
+
+   - Remote Query: `remote_query_kpi` facilitates querying KPI data from a remote cloud service, providing enhanced logging to track remote query operations.
+
+3. Functionality and Usage:
+The class offers enhanced logging and additional functionality over a traditional KPI manager, making it suitable for scenarios requiring detailed tracking and querying of KPI metrics with modified calculations and handling logic.
+# Usage: python kpi=manager-test.py [dirname]
+# Example1: python kpi-manager-test-experimental.py logs/bler_sample.mi2log 
+# (For testing KPI BLER)
+# Example2: python kpi-manager-test-experimental.py logs/data_sample.mi2log 
+# (For testing KPI DL_PDCP_LOSS, HANDOVER_PREDICTION, HANDOVER_LATENCY, HANDOVER_HOL)
+# import os
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.kpi import KPIManager, KpiAnalyzer
+import cProfile
+
+
+def kpi_manager_example():
+
+    src = OfflineReplayer()
+    src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+    kpi_manager = KPIManager()
+    # print ""All supported KPIs:"", str(kpi_manager.list_kpis())
+
+    # Test experimental KPIs - data plane
+    kpi_manager.enable_kpi(""KPI.Wireless.BLER"") # test log: bler_sample
+    kpi_manager.enable_kpi(""KPI.Wireless.DL_PDCP_LOSS"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Wireless.UL_PDCP_LOSS"")
+
+    # Test experimental KPIs - handover
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_PREDICTION"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_LATENCY"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_HOL"") # test log: data_sample
+
+    kpi_manager.set_source(src)
+
+    src.run()
+
+
+if __name__ == '__main__':
+    kpi_manager_example()
+
+ Expected Output:
+#!/usr/bin/python
+# Filename: kpi_manager_modified.py
+""""""
+kpi_manager_modified.py
+An unified interface for users to track and query KPIs with modified calculations
+
+Author: Yuanjie Li
+""""""
+
+__all__ = [""KPIManagerModified""]
+
+from ..analyzer import *
+import sys, inspect, os
+
+
+class KPIManagerModified(Analyzer):
+
+    """"""
+    An unified interface for users to track and query KPIs
+    """"""
+
+    supported_kpis={} # Supported KPIs: kpi_name -> KPIAnalyzer name
+
+    def __init__(self):
+        Analyzer.__init__(self)
+        self.__check_kpis()
+
+
+
+    def __check_kpis(self):
+
+        """"""
+        Find and include all supported KPIs into KPIManager.supported_kpis
+        """"""
+        module_tmp = __import__(""mobile_insight"")
+        for item in inspect.getmembers(module_tmp.analyzer.kpi, inspect.isclass):
+            if item[1].__bases__[0].__name__ ==  ""KpiAnalyzer"":
+                tmp_module = item[1]()
+                for kpi in tmp_module.list_kpis():
+                        KPIManagerModified.supported_kpis[kpi] = item[0]
+                        self.log_info(kpi)
+        
+
+    def list_kpis(self):
+        """"""
+        Return a list of available KPIs 
+
+        :returns: a list of string, each of which is a KPI name
+        """"""
+        return list(self.supported_kpis.keys())
+
+    def enable_all_kpis(self, enable_storage = False):
+        """"""
+        Enable all KPIs' monitoring
+        
+        :param enable_storage: Whether to locally store the kpi. False by default
+        :type enable_storage: boolean
+        """"""
+        for kpi_name in self.list_kpis():
+            self.enable_kpi(kpi_name, enable_storage)
+
+
+    def enable_kpi(self, kpi_name, periodicity='0s', cell=None, enable_storage = True):
+        """"""
+        Enable the KPI monitoring with slight modification
+
+        :param kpi_name: The KPI to be monitored
+        :type kpi_name: string
+        :param enable_storage: Whether to locally store the kpi. False by default
+        :type enable_storage: boolean
+        :returns: True if successfully activated, False otherwise
+        """"""
+
+        if kpi_name not in self.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return False
+
+        try: 
+            kpi_analyzer_name = self.supported_kpis[kpi_name]
+            self.include_analyzer(kpi_analyzer_name, [])
+            self.get_analyzer(kpi_analyzer_name).enable_local_storage(enable_storage)
+            self.get_analyzer(kpi_analyzer_name).set_periodicity(kpi_name, periodicity)
+            self.get_analyzer(kpi_analyzer_name).set_cell(kpi_name, cell)
+            # Modification: Log additional info for KPI activation
+            self.log_info(f""Enable KPI: {kpi_name} with periodicity: {periodicity} and storage: {enable_storage}"")
+            return True
+        except Exception as e:
+            # Import failure
+            self.log_warning(""Fail to activate KPI: ""+kpi_name)    
+            return False
+
+
+    def local_query_kpi(self, kpi_name, mode = 'cell', timestamp = None):
+        """"""
+        Query the phone's locally observed KPI
+
+        :param kpi_name: The KPI to be queried
+        :type kpi_name: string
+        :param timestamp: The timestamp of the KPI. If None, this function returns the latest KPI
+        :type timestamp: datetime
+        :returns: The KPI value, or None if the KPI is not available
+        """"""
+        if kpi_name not in self.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return None
+
+        kpi_agent = self.get_analyzer(self.supported_kpis[kpi_name])
+        if not kpi_agent:
+            # KPI analyzer not triggered
+            self.log_warning(""KPI not activated yet: ""+kpi_name)
+            self.enable_kpi(kpi_name)
+            return None
+
+        # Modification: Adjust query mode logic (e.g., simulate different processing)
+        if mode == 'cell':
+            self.log_info(f""Querying KPI: {kpi_name} in cell mode"")
+        else:
+            self.log_info(f""Querying KPI: {kpi_name} in {mode} mode"")
+        
+        return kpi_agent.local_query_kpi(kpi_name, mode, timestamp)
+
+    def remote_query_kpi(self, kpi_name, phone_model, operator, gps, timestamp):
+        """"""
+        Query the remote cloud for the KPI
+
+        :param kpi_name: The KPI to be queried
+        :type kpi_name: string
+        :param phone_model: The the phone model
+        :type phone_model: string
+        :param operator: The network operator
+        :type operator: string
+        :param gps: The GPS coordinate
+        :type gps: string
+        :param timestamp: The timestamp of the KPI. 
+        :type timestamp: datetime
+        :returns: The KPI value, or None if the KPI is not available
+        """"""
+        if kpi_name not in KPIManagerModified.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return None
+
+        kpi_agent = self.get_analyzer(KPIManagerModified.supported_kpis[kpi_name])
+        if not kpi_agent:
+            # KPI analyzer not triggered
+            self.log_warning(""KPI not activated yet: ""+kpi_name)
+            self.enable_kpi(kpi_name)
+            return None
+
+        # Modification: Log additional information for remote query
+        self.log_info(f""Remote query for KPI: {kpi_name} at timestamp: {timestamp}"")
+        
+        return kpi_agent.local_query_kpi(kpi_name, phone_model, operator, gps, timestamp)
+
+Target Prompt:
+Prompt: I want you to define a class `KPIManagerModified` that inherits from a base `Analyzer` class, providing modified calculations and logging for KPIs:
+
+1. Class Definition: `KPIManagerModified`
+This class extends the `Analyzer` class to offer a unified interface for tracking and querying KPIs. It includes a mechanism to identify and load supported KPIs from the `mobile_insight` library.
+
+   - Initialization: The constructor initializes the base `Analyzer` class and calls a helper function `__check_kpis` which dynamically identifies supported KPI analyzers by inspecting the `mobile_insight.analyzer.kpi` module. It logs the available KPIs.
+
+   - KPI Listing: The `list_kpis` function returns a list of all available KPI names that can be monitored.
+
+   - KPI Enabling: The `enable_kpi` function allows for enabling a specific KPI by its name. It includes modifications such as logging additional information when a KPI is activated. It also allows setting a periodicity and whether to enable local storage.
+
+   - Enable All: The `enable_all_kpis` method enables monitoring for all identified KPIs.
+
+2. KPI Query Functions:
+   - Local Query: `local_query_kpi` allows querying the locally observed KPI values. It includes modified logic to adjust query behavior based on a given mode (e.g., 'cell') and logs additional information based on the query mode.
+
+   - Remote Query: `remote_query_kpi` facilitates querying KPI data from a remote cloud service, providing enhanced logging to track remote query operations.
+
+3. Functionality and Usage:
+The class offers enhanced logging and additional functionality over a traditional KPI manager, making it suitable for scenarios requiring detailed tracking and querying of KPI metrics with modified calculations and handling logic.
+# Usage: python kpi=manager-test.py [dirname]
+# Example1: python kpi-manager-test-experimental.py logs/bler_sample.mi2log 
+# (For testing KPI BLER)
+# Example2: python kpi-manager-test-experimental.py logs/data_sample.mi2log 
+# (For testing KPI DL_PDCP_LOSS, HANDOVER_PREDICTION, HANDOVER_LATENCY, HANDOVER_HOL)
+# import os
+import sys
+
+from mobile_insight.monitor import OfflineReplayer
+from mobile_insight.analyzer.kpi import KPIManager, KpiAnalyzer
+import cProfile
+
+
+def kpi_manager_example():
+
+    src = OfflineReplayer()
+    src.set_input_path('./logs/offline_log_examples/20201115_181637_Xiaomi-Mi10_46000.mi2log')
+
+    kpi_manager = KPIManager()
+    # print ""All supported KPIs:"", str(kpi_manager.list_kpis())
+
+    # Test experimental KPIs - data plane
+    kpi_manager.enable_kpi(""KPI.Wireless.BLER"") # test log: bler_sample
+    kpi_manager.enable_kpi(""KPI.Wireless.DL_PDCP_LOSS"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Wireless.UL_PDCP_LOSS"")
+
+    # Test experimental KPIs - handover
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_PREDICTION"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_LATENCY"") # test log: data_sample
+    kpi_manager.enable_kpi(""KPI.Mobility.HANDOVER_HOL"") # test log: data_sample
+
+    kpi_manager.set_source(src)
+
+    src.run()
+
+
+if __name__ == '__main__':
+    kpi_manager_example()
+","#!/usr/bin/python
+# Filename: kpi_manager_modified.py
+""""""
+kpi_manager_modified.py
+An unified interface for users to track and query KPIs with modified calculations
+
+Author: Yuanjie Li
+""""""
+
+__all__ = [""KPIManagerModified""]
+
+from ..analyzer import *
+import sys, inspect, os
+
+
+class KPIManagerModified(Analyzer):
+
+    """"""
+    An unified interface for users to track and query KPIs
+    """"""
+
+    supported_kpis={} # Supported KPIs: kpi_name -> KPIAnalyzer name
+
+    def __init__(self):
+        Analyzer.__init__(self)
+        self.__check_kpis()
+
+
+
+    def __check_kpis(self):
+
+        """"""
+        Find and include all supported KPIs into KPIManager.supported_kpis
+        """"""
+        module_tmp = __import__(""mobile_insight"")
+        for item in inspect.getmembers(module_tmp.analyzer.kpi, inspect.isclass):
+            if item[1].__bases__[0].__name__ ==  ""KpiAnalyzer"":
+                tmp_module = item[1]()
+                for kpi in tmp_module.list_kpis():
+                        KPIManagerModified.supported_kpis[kpi] = item[0]
+                        self.log_info(kpi)
+        
+
+    def list_kpis(self):
+        """"""
+        Return a list of available KPIs 
+
+        :returns: a list of string, each of which is a KPI name
+        """"""
+        return list(self.supported_kpis.keys())
+
+    def enable_all_kpis(self, enable_storage = False):
+        """"""
+        Enable all KPIs' monitoring
+        
+        :param enable_storage: Whether to locally store the kpi. False by default
+        :type enable_storage: boolean
+        """"""
+        for kpi_name in self.list_kpis():
+            self.enable_kpi(kpi_name, enable_storage)
+
+
+    def enable_kpi(self, kpi_name, periodicity='0s', cell=None, enable_storage = True):
+        """"""
+        Enable the KPI monitoring with slight modification
+
+        :param kpi_name: The KPI to be monitored
+        :type kpi_name: string
+        :param enable_storage: Whether to locally store the kpi. False by default
+        :type enable_storage: boolean
+        :returns: True if successfully activated, False otherwise
+        """"""
+
+        if kpi_name not in self.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return False
+
+        try: 
+            kpi_analyzer_name = self.supported_kpis[kpi_name]
+            self.include_analyzer(kpi_analyzer_name, [])
+            self.get_analyzer(kpi_analyzer_name).enable_local_storage(enable_storage)
+            self.get_analyzer(kpi_analyzer_name).set_periodicity(kpi_name, periodicity)
+            self.get_analyzer(kpi_analyzer_name).set_cell(kpi_name, cell)
+            # Modification: Log additional info for KPI activation
+            self.log_info(f""Enable KPI: {kpi_name} with periodicity: {periodicity} and storage: {enable_storage}"")
+            return True
+        except Exception as e:
+            # Import failure
+            self.log_warning(""Fail to activate KPI: ""+kpi_name)    
+            return False
+
+
+    def local_query_kpi(self, kpi_name, mode = 'cell', timestamp = None):
+        """"""
+        Query the phone's locally observed KPI
+
+        :param kpi_name: The KPI to be queried
+        :type kpi_name: string
+        :param timestamp: The timestamp of the KPI. If None, this function returns the latest KPI
+        :type timestamp: datetime
+        :returns: The KPI value, or None if the KPI is not available
+        """"""
+        if kpi_name not in self.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return None
+
+        kpi_agent = self.get_analyzer(self.supported_kpis[kpi_name])
+        if not kpi_agent:
+            # KPI analyzer not triggered
+            self.log_warning(""KPI not activated yet: ""+kpi_name)
+            self.enable_kpi(kpi_name)
+            return None
+
+        # Modification: Adjust query mode logic (e.g., simulate different processing)
+        if mode == 'cell':
+            self.log_info(f""Querying KPI: {kpi_name} in cell mode"")
+        else:
+            self.log_info(f""Querying KPI: {kpi_name} in {mode} mode"")
+        
+        return kpi_agent.local_query_kpi(kpi_name, mode, timestamp)
+
+    def remote_query_kpi(self, kpi_name, phone_model, operator, gps, timestamp):
+        """"""
+        Query the remote cloud for the KPI
+
+        :param kpi_name: The KPI to be queried
+        :type kpi_name: string
+        :param phone_model: The the phone model
+        :type phone_model: string
+        :param operator: The network operator
+        :type operator: string
+        :param gps: The GPS coordinate
+        :type gps: string
+        :param timestamp: The timestamp of the KPI. 
+        :type timestamp: datetime
+        :returns: The KPI value, or None if the KPI is not available
+        """"""
+        if kpi_name not in KPIManagerModified.supported_kpis:
+            self.log_warning(""KPI does not exist: ""+kpi_name)
+            return None
+
+        kpi_agent = self.get_analyzer(KPIManagerModified.supported_kpis[kpi_name])
+        if not kpi_agent:
+            # KPI analyzer not triggered
+            self.log_warning(""KPI not activated yet: ""+kpi_name)
+            self.enable_kpi(kpi_name)
+            return None
+
+        # Modification: Log additional information for remote query
+        self.log_info(f""Remote query for KPI: {kpi_name} at timestamp: {timestamp}"")
+        
+        return kpi_agent.local_query_kpi(kpi_name, phone_model, operator, gps, timestamp)","#!/usr/bin/python
+# Filename: kpi_manager_modified.py
+""""""
+A modified KPI Manager that provides enhanced calculations and logging for KPIs.
+
+Author: Your Name
+""""""
+
+from mobile_insight.analyzer.analyzer import *
+import importlib
+import logging
+
+__all__ = [""KPIManagerModified""]
+
+class KPIManagerModified(Analyzer):
+    """"""
+    A modified KPI Manager for tracking and querying KPIs with enhanced functionality.
+    """"""
+
+    def __init__(self):
+        Analyzer.__init__(self)
+        self.kpi_analyzers = {}
+        self.__check_kpis()
+
+    def __check_kpis(self):
+        """"""
+        Dynamically identify supported KPI analyzers by inspecting the mobile_insight.analyzer.kpi module.
+        """"""
+        try:
+            kpi_module = importlib.import_module(""mobile_insight.analyzer.kpi"")
+            for name in dir(kpi_module):
+                kpi_class = getattr(kpi_module, name)
+                if isinstance(kpi_class, type) and issubclass(kpi_class, KpiAnalyzer) and kpi_class is not KpiAnalyzer:
+                    self.kpi_analyzers[name] = kpi_class()
+            self.log_info(""Available KPIs: "" + "", "".join(self.kpi_analyzers.keys()))
+        except Exception as e:
+            self.log_error(""Failed to load KPI analyzers: "" + str(e))
+
+    def list_kpis(self):
+        """"""
+        Returns a list of all available KPI names that can be monitored.
+        """"""
+        return list(self.kpi_analyzers.keys())
+
+    def enable_kpi(self, kpi_name, periodicity=None, enable_local_storage=False):
+        """"""
+        Enable a specific KPI by its name with optional periodicity and local storage settings.
+        """"""
+        if kpi_name in self.kpi_analyzers:
+            kpi_analyzer = self.kpi_analyzers[kpi_name]
+            kpi_analyzer.enable()
+            if periodicity:
+                kpi_analyzer.set_periodicity(periodicity)
+            kpi_analyzer.enable_local_storage(enable_local_storage)
+            self.log_info(f""KPI {kpi_name} enabled with periodicity {periodicity} and local storage {enable_local_storage}"")
+        else:
+            self.log_error(f""KPI {kpi_name} is not available"")
+
+    def enable_all_kpis(self):
+        """"""
+        Enable monitoring for all identified KPIs.
+        """"""
+        for kpi_name in self.kpi_analyzers.keys():
+            self.enable_kpi(kpi_name)
+
+    def local_query_kpi(self, kpi_name, mode='default'):
+        """"""
+        Query the locally observed KPI values with additional logic based on the mode.
+        """"""
+        if kpi_name in self.kpi_analyzers:
+            kpi_analyzer = self.kpi_analyzers[kpi_name]
+            result = kpi_analyzer.query(mode)
+            self.log_info(f""Local query for KPI {kpi_name} with mode {mode}: {result}"")
+            return result
+        else:
+            self.log_error(f""KPI {kpi_name} is not available for local querying"")
+            return None
+
+    def remote_query_kpi(self, kpi_name):
+        """"""
+        Query KPI data from a remote cloud service with enhanced logging.
+        """"""
+        if kpi_name in self.kpi_analyzers:
+            kpi_analyzer = self.kpi_analyzers[kpi_name]
+            try:
+                result = kpi_analyzer.remote_query()
+                self.log_info(f""Remote query for KPI {kpi_name}: {result}"")
+                return result
+            except Exception as e:
+                self.log_error(f""Failed to perform remote query for KPI {kpi_name}: {str(e)}"")
+                return None
+        else:
+            self.log_error(f""KPI {kpi_name} is not available for remote querying"")
+            return None
+
+    def set_source(self, source):
+        """"""
+        Set the trace source. Enable the KPI analyzers to use the provided source.
+        """"""
+        Analyzer.set_source(self, source)
+        for kpi_analyzer in self.kpi_analyzers.values():
+            kpi_analyzer.set_source(source)"

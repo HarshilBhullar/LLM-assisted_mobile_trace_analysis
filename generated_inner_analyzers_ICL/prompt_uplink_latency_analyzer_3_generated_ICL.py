@@ -1,0 +1,136 @@
+
+#!/usr/bin/python3
+# Filename: uplink_latency_analyzer_modified.py
+"""
+uplink_latency_analyzer_modified.py
+A modified analyzer to monitor uplink packet latency with additional metrics.
+"""
+
+__all__ = ["UplinkLatencyAnalyzerModified"]
+
+from mobile_insight.analyzer.analyzer import Analyzer
+
+class UplinkLatencyAnalyzerModified(Analyzer):
+    def __init__(self):
+        Analyzer.__init__(self)
+        self.add_source_callback(self.__msg_callback)
+
+        # Timers 
+        self.fn = -1
+        self.sfn = -1
+
+        # PHY stats
+        self.cum_err_block = {0: 0, 1: 0}  # {0:xx, 1:xx} 0 denotes uplink and 1 denotes downlink
+        self.cum_block = {0: 0, 1: 0}  # {0:xx, 1:xx} 0 denotes uplink and 1 denotes downlink
+
+        # MAC buffer
+        self.last_buffer = 0
+        self.packet_queue = []
+
+        # Stats
+        self.all_packets = []
+        self.tx_packets = []
+        self.tmp_dict = {}
+
+    def set_source(self, source):
+        """
+        Set the trace source. Enable the cellular signaling messages
+
+        :param source: the trace source (collector).
+        """
+        Analyzer.set_source(self, source)
+
+        source.enable_log("LTE_PHY_PUSCH_Tx_Report")
+        source.enable_log("LTE_MAC_UL_Buffer_Status_Internal")
+
+    def __f_time_diff(self, t1, t2):
+        if t1 > t2:
+            t_diff = t2 + 10240 - t1
+        else:
+            t_diff = t2 - t1 + 1
+        return t_diff
+
+    def __f_time(self):
+        return self.fn * 10 + self.sfn
+
+    def __msg_callback(self, msg):
+        if msg.type_id == "LTE_PHY_PUSCH_Tx_Report":
+            log_item = msg.data.decode()
+            if 'Records' in log_item:
+                for record in log_item['Records']:
+                    retx_time = record['Current SFN SF']
+                    if retx_time < 0:
+                        retx_time += 1024
+
+                    if record['Re-tx Index'] == 'First':
+                        self.cum_block[0] += 1
+                    else:
+                        self.cum_err_block[0] += 1
+
+                        if retx_time in self.tmp_dict:
+                            self.tmp_dict[retx_time]['Retx Latency'] = 10  # Modified the retx latency value
+                        else:
+                            self.tmp_dict[retx_time] = {'Retx Latency': 10}
+
+                    for t in list(self.tmp_dict):
+                        if (t < retx_time or (t > 1000 and retx_time < 20)):
+                            if 'Retx Latency' not in self.tmp_dict[t]:
+                                self.tmp_dict[t]['Retx Latency'] = 0
+
+                            if len(self.tmp_dict[t]) == 3:
+                                print('Waiting Latency:', self.tmp_dict[t]['Waiting Latency'], 'Tx Latency:', self.tmp_dict[t]['Tx Latency'], 'Retx Latency:', self.tmp_dict[t]['Retx Latency'])
+                                self.all_packets.append(self.tmp_dict[t])
+                                del(self.tmp_dict[t])
+
+        if msg.type_id == "LTE_MAC_UL_Buffer_Status_Internal":
+            for packet in msg.data.decode()['Subpackets']:
+                for sample in packet['Samples']:
+                    SFN = sample['Sub FN']
+                    FN = sample['Sys FN']
+                    self.update_time(SFN, FN)
+                    if (sample['LCIDs'] == []):
+                        continue
+
+                    data = sample['LCIDs'][-1]
+                    
+                    total_b = data['Total Bytes']
+                    new_c = data['New Compressed Bytes']
+                    retx_b = data['Retx bytes']
+                    ctrl_b = data['Ctrl bytes']
+
+                    if total_b > self.last_buffer: 
+                        self.packet_queue.append([total_b - self.last_buffer, total_b - self.last_buffer, self.__f_time(), -1])
+                    elif total_b < self.last_buffer:
+                        outgoing_bufer = self.last_buffer - total_b
+                        while 1:
+                            if self.packet_queue == []:
+                                break
+                            packet = self.packet_queue[0]
+                            if packet[3] == -1:
+                                packet[3] = self.__f_time()
+                            if packet[1] > outgoing_bufer:
+                                packet[1] -= outgoing_bufer
+                                break
+                            else:
+                                t_now = self.__f_time()
+                                if (t_now not in self.tmp_dict):
+                                    self.tmp_dict[t_now] = {}
+                                self.tmp_dict[t_now]['Waiting Latency'] = self.__f_time_diff(packet[2], packet[3])
+                                self.tmp_dict[t_now]['Tx Latency'] = self.__f_time_diff(packet[3], self.__f_time())
+
+                                outgoing_bufer -= packet[1]
+                                del self.packet_queue[0]
+
+                    self.last_buffer = total_b
+
+    def update_time(self, SFN, FN):
+        if self.sfn >= 0:      
+            self.sfn += 1
+            if self.sfn == 10:
+                self.sfn = 0
+                self.fn += 1
+            if self.fn == 1024:
+                self.fn = 0
+        if SFN < 10:
+            self.sfn = SFN
+            self.fn = FN

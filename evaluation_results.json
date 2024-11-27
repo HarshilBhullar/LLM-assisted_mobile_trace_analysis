@@ -1,0 +1,402 @@
+[
+    {
+        "file": "prompt_kpi_manager_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.15956959706959706,
+        "bleu_score": 0.25692636163700644,
+        "jaccard_index": 0.2222222222222222
+    },
+    {
+        "file": "prompt_kpi_manager_2_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5751514826532254,
+        "bleu_score": 0.8533333333333334,
+        "jaccard_index": 0.7420634920634921
+    },
+    {
+        "file": "prompt_kpi_manager_2_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.15011191941801902,
+        "bleu_score": 0.30979671046690016,
+        "jaccard_index": 0.1891891891891892
+    },
+    {
+        "file": "prompt_kpi_manager_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 1.0,
+        "bleu_score": 1.0,
+        "jaccard_index": 1.0
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.146200995516064,
+        "bleu_score": 0.08992061601410763,
+        "jaccard_index": 0.17956656346749225
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1600489196901753,
+        "bleu_score": 0.21446111937812776,
+        "jaccard_index": 0.20414201183431951
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1457338772675983,
+        "bleu_score": 0.05963427730718607,
+        "jaccard_index": 0.20648967551622419
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.059062776304155615,
+        "bleu_score": 0.06353584424288547,
+        "jaccard_index": 0.1746031746031746
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08237946583420049,
+        "bleu_score": 0.10961512989232584,
+        "jaccard_index": 0.16594827586206898
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.0879619946816457,
+        "bleu_score": 0.07778771210427603,
+        "jaccard_index": 0.178117048346056
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9264947358253647,
+        "bleu_score": 0.851736005788377,
+        "jaccard_index": 0.8296529968454258
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.40365786070570847,
+        "bleu_score": 0.23585903177707676,
+        "jaccard_index": 0.31351351351351353
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.14865676765942837,
+        "bleu_score": 0.3249271391317679,
+        "jaccard_index": 0.28095238095238095
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.2868649318463445,
+        "bleu_score": 0.3951432858943142,
+        "jaccard_index": 0.3380281690140845
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08169596690796277,
+        "bleu_score": 0.06513720056639674,
+        "jaccard_index": 0.18426103646833014
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07602137562489227,
+        "bleu_score": 0.06172243342540463,
+        "jaccard_index": 0.17254901960784313
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.059302890801475425,
+        "bleu_score": 0.05967343150612132,
+        "jaccard_index": 0.1706827309236948
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07234133688694286,
+        "bleu_score": 0.03517157491003571,
+        "jaccard_index": 0.17094017094017094
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07504777886542675,
+        "bleu_score": 0.03251638085044706,
+        "jaccard_index": 0.1700507614213198
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.27323430338505716,
+        "bleu_score": 0.32828569914361316,
+        "jaccard_index": 0.29707112970711297
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.03585967159127293,
+        "bleu_score": 0.009192910764466855,
+        "jaccard_index": 0.1099290780141844
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_2_generated_ICL.py",
+        "syntax_correct": false,
+        "syntax_error": "EOF while scanning triple-quoted string literal (<unknown>, line 1597)",
+        "ast_similarity": 0.0,
+        "bleu_score": 0.9987476518472135,
+        "jaccard_index": 1.0
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.01942908926144087,
+        "bleu_score": 0.0003018889443332191,
+        "jaccard_index": 0.0715648854961832
+    },
+    {
+        "file": "prompt_mm_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04200333565425782,
+        "bleu_score": 0.02299466229221554,
+        "jaccard_index": 0.09985734664764621
+    },
+    {
+        "file": "prompt_mm_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06589958158995816,
+        "bleu_score": 0.010271383482424774,
+        "jaccard_index": 0.09217877094972067
+    },
+    {
+        "file": "prompt_mm_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.031049410359755187,
+        "bleu_score": 0.007782251986238823,
+        "jaccard_index": 0.08789625360230548
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1867043847241867,
+        "bleu_score": 0.5294117647058824,
+        "jaccard_index": 0.37404580152671757
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8852844381758345,
+        "bleu_score": 0.8636363636363636,
+        "jaccard_index": 0.686046511627907
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.21644633654492493,
+        "bleu_score": 0.6744186046511628,
+        "jaccard_index": 0.5263157894736842
+    },
+    {
+        "file": "prompt_msg_statistics_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.23412844036697247,
+        "bleu_score": 0.3933968676435818,
+        "jaccard_index": 0.37267080745341613
+    },
+    {
+        "file": "prompt_msg_statistics_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.14032121724429417,
+        "bleu_score": 0.3987331039283136,
+        "jaccard_index": 0.46153846153846156
+    },
+    {
+        "file": "prompt_msg_statistics_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04498416050686378,
+        "bleu_score": 0.3054983525383179,
+        "jaccard_index": 0.3493150684931507
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07808694651657813,
+        "bleu_score": 0.0063603490798065515,
+        "jaccard_index": 0.2140468227424749
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04040404040404041,
+        "bleu_score": 0.003072419709860042,
+        "jaccard_index": 0.11616161616161616
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.3358696652655478,
+        "bleu_score": 0.5686456717741601,
+        "jaccard_index": 0.6484098939929329
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08066796848697057,
+        "bleu_score": 0.07499307837058503,
+        "jaccard_index": 0.2
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04327140915269597,
+        "bleu_score": 0.04705285282239999,
+        "jaccard_index": 0.17616580310880828
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08291715126222891,
+        "bleu_score": 0.08012083914194583,
+        "jaccard_index": 0.14
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06201765331115116,
+        "bleu_score": 0.25619221524122887,
+        "jaccard_index": 0.273972602739726
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04602345520843599,
+        "bleu_score": 0.1795245523625856,
+        "jaccard_index": 0.1873198847262248
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9819125333734441,
+        "bleu_score": 0.8916630451282305,
+        "jaccard_index": 0.8901960784313725
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.03464090676197498,
+        "bleu_score": 0.00280739653316945,
+        "jaccard_index": 0.09821428571428571
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.03692982568000102,
+        "bleu_score": 8.835670108100105e-05,
+        "jaccard_index": 0.06064073226544622
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.10120129333742418,
+        "bleu_score": 0.027821534398623105,
+        "jaccard_index": 0.11148648648648649
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.09543609543609544,
+        "bleu_score": 0.17316454188437455,
+        "jaccard_index": 0.23003194888178913
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.12104223151509581,
+        "bleu_score": 0.21039705811016965,
+        "jaccard_index": 0.24338624338624337
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9273004995252446,
+        "bleu_score": 0.7899897438364435,
+        "jaccard_index": 0.8299595141700404
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08303883186964342,
+        "bleu_score": 0.07616814554963812,
+        "jaccard_index": 0.22365988909426987
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.45412757721566627,
+        "bleu_score": 0.11256629519306983,
+        "jaccard_index": 0.3090418353576248
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06760685760117635,
+        "bleu_score": 0.0009690807789436754,
+        "jaccard_index": 0.07898448519040903
+    }
+]
