@@ -1,0 +1,402 @@
+[
+    {
+        "file": "prompt_kpi_manager_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06878912297233628,
+        "bleu_score": 0.07000866033852952,
+        "jaccard_index": 0.140893470790378
+    },
+    {
+        "file": "prompt_kpi_manager_2_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07590673575129533,
+        "bleu_score": 0.09523053472131639,
+        "jaccard_index": 0.1588447653429603
+    },
+    {
+        "file": "prompt_kpi_manager_2_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.040421674612233935,
+        "bleu_score": 0.10134723614563237,
+        "jaccard_index": 0.17229729729729729
+    },
+    {
+        "file": "prompt_kpi_manager_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.09350099601593626,
+        "bleu_score": 0.1042651408378494,
+        "jaccard_index": 0.15867158671586715
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.12582183833956426,
+        "bleu_score": 0.051910576438477456,
+        "jaccard_index": 0.16346153846153846
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1431748284835581,
+        "bleu_score": 0.07991956366875251,
+        "jaccard_index": 0.14240506329113925
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1136461844265837,
+        "bleu_score": 0.043913616256312564,
+        "jaccard_index": 0.13694267515923567
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06607432133915861,
+        "bleu_score": 0.018594103733717303,
+        "jaccard_index": 0.1360544217687075
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08044469427268752,
+        "bleu_score": 0.007755446701958274,
+        "jaccard_index": 0.1091314031180401
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.04636805905049488,
+        "bleu_score": 0.005176462485038034,
+        "jaccard_index": 0.07291666666666667
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.0406648675171737,
+        "bleu_score": 0.013071694160676483,
+        "jaccard_index": 0.08928571428571429
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.19456155143338955,
+        "bleu_score": 0.06082959717785731,
+        "jaccard_index": 0.17222222222222222
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1341919763293012,
+        "bleu_score": 0.08185851338862574,
+        "jaccard_index": 0.15
+    },
+    {
+        "file": "prompt_lte_measurement_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.2059436913451512,
+        "bleu_score": 0.205199586548185,
+        "jaccard_index": 0.23316062176165803
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.014908596107199905,
+        "bleu_score": 0.013724585336511701,
+        "jaccard_index": 0.11316872427983539
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.053661501063506534,
+        "bleu_score": 0.01615412873124873,
+        "jaccard_index": 0.13991769547325103
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.08076526857983812,
+        "bleu_score": 0.05241846362890869,
+        "jaccard_index": 0.1596806387225549
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06919797759492416,
+        "bleu_score": 0.010065014606548248,
+        "jaccard_index": 0.12112676056338029
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.0693981572240737,
+        "bleu_score": 0.003523454629874358,
+        "jaccard_index": 0.13043478260869565
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.18103552807081363,
+        "bleu_score": 0.07333781287496186,
+        "jaccard_index": 0.19626168224299065
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.027890679747722493,
+        "bleu_score": 0.0012933923417380426,
+        "jaccard_index": 0.07747747747747748
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.0,
+        "bleu_score": 1.2009952028399619e-09,
+        "jaccard_index": 0.04331864904552129
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.008622277902649324,
+        "bleu_score": 3.39030377508369e-08,
+        "jaccard_index": 0.04527938342967245
+    },
+    {
+        "file": "prompt_mm_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.028127538586515028,
+        "bleu_score": 0.00043245256493153997,
+        "jaccard_index": 0.057863501483679525
+    },
+    {
+        "file": "prompt_mm_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.033070627972239496,
+        "bleu_score": 0.0004569456492470917,
+        "jaccard_index": 0.05925925925925926
+    },
+    {
+        "file": "prompt_mm_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.020975517044767352,
+        "bleu_score": 0.0006671487706551014,
+        "jaccard_index": 0.045722713864306784
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.22690006647462885,
+        "bleu_score": 0.2843112467402969,
+        "jaccard_index": 0.27350427350427353
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.21063829787234042,
+        "bleu_score": 0.378125995821826,
+        "jaccard_index": 0.29292929292929293
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.40257808626673275,
+        "bleu_score": 0.29100238272351836,
+        "jaccard_index": 0.32978723404255317
+    },
+    {
+        "file": "prompt_msg_statistics_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.07907095892750406,
+        "bleu_score": 0.16235485400217622,
+        "jaccard_index": 0.22580645161290322
+    },
+    {
+        "file": "prompt_msg_statistics_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06632805497460412,
+        "bleu_score": 0.21412958157424145,
+        "jaccard_index": 0.2546583850931677
+    },
+    {
+        "file": "prompt_msg_statistics_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.05930807248764415,
+        "bleu_score": 0.1414553551262072,
+        "jaccard_index": 0.23404255319148937
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.038707939744896974,
+        "bleu_score": 0.0009926454753964667,
+        "jaccard_index": 0.07941653160453808
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.01420750192298991,
+        "bleu_score": 0.0014291851678527104,
+        "jaccard_index": 0.07431340872374798
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.03798426786690784,
+        "bleu_score": 0.001325018382409808,
+        "jaccard_index": 0.09166666666666666
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.0916708805894676,
+        "bleu_score": 0.027838480991534922,
+        "jaccard_index": 0.09090909090909091
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.019566080646908054,
+        "bleu_score": 0.02346018879305454,
+        "jaccard_index": 0.1099476439790576
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.11316053569574697,
+        "bleu_score": 0.033778385721918956,
+        "jaccard_index": 0.09782608695652174
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.05651507409299949,
+        "bleu_score": 0.11416118984456451,
+        "jaccard_index": 0.1950354609929078
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.034951087472694466,
+        "bleu_score": 0.1447158798545477,
+        "jaccard_index": 0.19466666666666665
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06623470122390208,
+        "bleu_score": 0.057349486034438346,
+        "jaccard_index": 0.1951219512195122
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.01255967120210349,
+        "bleu_score": 5.407194734841553e-06,
+        "jaccard_index": 0.031141868512110725
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.020728247162673394,
+        "bleu_score": 1.118152857492727e-07,
+        "jaccard_index": 0.019184652278177457
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.01347040991169105,
+        "bleu_score": 8.643836052569323e-06,
+        "jaccard_index": 0.04091456077015644
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.10530428836573215,
+        "bleu_score": 0.1187414001492854,
+        "jaccard_index": 0.1962025316455696
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.06851075719474714,
+        "bleu_score": 0.03717258768135527,
+        "jaccard_index": 0.15060240963855423
+    },
+    {
+        "file": "prompt_uplink_latency_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.05072316154002852,
+        "bleu_score": 0.10564154829845067,
+        "jaccard_index": 0.1534090909090909
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_1_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.03878152925122155,
+        "bleu_score": 0.003082465601170851,
+        "jaccard_index": 0.05202312138728324
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_2_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.019775466062416314,
+        "bleu_score": 2.0936230637494906e-05,
+        "jaccard_index": 0.05508474576271186
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_3_baseline.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.017142178244708837,
+        "bleu_score": 4.396691003417069e-05,
+        "jaccard_index": 0.05182072829131653
+    }
+]

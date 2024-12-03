@@ -1,0 +1,434 @@
+[
+    {
+        "file": "prompt_dl_retx_analyzer_test_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.4270344827586207,
+        "bleu_score": 0.2982456140350877,
+        "jaccard_index": 0.22627737226277372
+    },
+    {
+        "file": "prompt_dl_retx_analyzer_test_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.21208546336348144,
+        "bleu_score": 0.2711864406779661,
+        "jaccard_index": 0.14666666666666667
+    },
+    {
+        "file": "prompt_dl_retx_analyzer_test_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.998796992481203,
+        "bleu_score": 0.9347826086956522,
+        "jaccard_index": 0.96875
+    },
+    {
+        "file": "prompt_kpi-manager-test-experimental_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9843260188087775,
+        "bleu_score": 0.4152547563801129,
+        "jaccard_index": 0.25555555555555554
+    },
+    {
+        "file": "prompt_kpi-manager-test-experimental_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8006329113924051,
+        "bleu_score": 0.4146341463414634,
+        "jaccard_index": 0.2830188679245283
+    },
+    {
+        "file": "prompt_kpi-manager-test-experimental_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8548609198567888,
+        "bleu_score": 0.3460697599158995,
+        "jaccard_index": 0.28
+    },
+    {
+        "file": "prompt_kpi-manager-test_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.666280193236715,
+        "bleu_score": 0.24868010985696168,
+        "jaccard_index": 0.192
+    },
+    {
+        "file": "prompt_kpi-manager-test_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.4752284752284752,
+        "bleu_score": 0.24561403508771928,
+        "jaccard_index": 0.15714285714285714
+    },
+    {
+        "file": "prompt_kpi-manager-test_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.47387986695362944,
+        "bleu_score": 0.2581654490631647,
+        "jaccard_index": 0.20689655172413793
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.7876370887337986,
+        "bleu_score": 0.7058823529411765,
+        "jaccard_index": 0.7211538461538461
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5628174737555028,
+        "bleu_score": 0.6862745098039216,
+        "jaccard_index": 0.5876288659793815
+    },
+    {
+        "file": "prompt_lte_dl_retx_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.6736842105263158,
+        "bleu_score": 0.7952178735693306,
+        "jaccard_index": 0.6160714285714286
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.2645566561971491,
+        "bleu_score": 0.5711280658846727,
+        "jaccard_index": 0.5
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9577464788732394,
+        "bleu_score": 0.7657790567830104,
+        "jaccard_index": 0.5816326530612245
+    },
+    {
+        "file": "prompt_lte_mac_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.7675760755508919,
+        "bleu_score": 0.8738297842256658,
+        "jaccard_index": 0.75
+    },
+    {
+        "file": "prompt_lte_meas_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8516700965648251,
+        "bleu_score": 0.5423865134870072,
+        "jaccard_index": 0.6111111111111112
+    },
+    {
+        "file": "prompt_lte_meas_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.2176,
+        "bleu_score": 0.559322033898305,
+        "jaccard_index": 0.6153846153846154
+    },
+    {
+        "file": "prompt_lte_meas_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.17364341085271318,
+        "bleu_score": 0.5555555555555556,
+        "jaccard_index": 0.49193548387096775
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.18461538461538463,
+        "bleu_score": 0.5490196078431373,
+        "jaccard_index": 0.3700787401574803
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.2610975183502272,
+        "bleu_score": 0.7657790567830104,
+        "jaccard_index": 0.5567010309278351
+    },
+    {
+        "file": "prompt_lte_phy_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.592863359442994,
+        "bleu_score": 0.3653846153846153,
+        "jaccard_index": 0.3475177304964539
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9688654353562005,
+        "bleu_score": 0.784764275213089,
+        "jaccard_index": 0.632183908045977
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9046563192904656,
+        "bleu_score": 0.33321991827536623,
+        "jaccard_index": 0.4827586206896552
+    },
+    {
+        "file": "prompt_lte_rlc_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8949677419354839,
+        "bleu_score": 0.38636363636363635,
+        "jaccard_index": 0.6233766233766234
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.3686420905272982,
+        "bleu_score": 0.5065517858924957,
+        "jaccard_index": 0.3430232558139535
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.3446808510638298,
+        "bleu_score": 0.334562200943144,
+        "jaccard_index": 0.37037037037037035
+    },
+    {
+        "file": "prompt_lte_rrc_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.4948523206751055,
+        "bleu_score": 0.6394596380727587,
+        "jaccard_index": 0.4444444444444444
+    },
+    {
+        "file": "prompt_mm_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.12427506213753108,
+        "bleu_score": 0.6521483241490452,
+        "jaccard_index": 0.5514018691588785
+    },
+    {
+        "file": "prompt_mm_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5888665325285044,
+        "bleu_score": 0.6206896551724138,
+        "jaccard_index": 0.472
+    },
+    {
+        "file": "prompt_mm_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.28890612878200156,
+        "bleu_score": 0.6181818181818182,
+        "jaccard_index": 0.6036036036036037
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8122181221812218,
+        "bleu_score": 0.6449384570595154,
+        "jaccard_index": 0.5168539325842697
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.4061617458279846,
+        "bleu_score": 0.8987963494892562,
+        "jaccard_index": 0.7246376811594203
+    },
+    {
+        "file": "prompt_modem_debug_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8489170628631801,
+        "bleu_score": 0.7209302325581395,
+        "jaccard_index": 0.5897435897435898
+    },
+    {
+        "file": "prompt_msg-statistics-example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1631148485197558,
+        "bleu_score": 0.36345797482905634,
+        "jaccard_index": 0.24855491329479767
+    },
+    {
+        "file": "prompt_msg-statistics-example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.21685878962536023,
+        "bleu_score": 0.4109932149808957,
+        "jaccard_index": 0.27388535031847133
+    },
+    {
+        "file": "prompt_msg-statistics-example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5384039900249377,
+        "bleu_score": 0.34180745545123586,
+        "jaccard_index": 0.373134328358209
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.27928303459774906,
+        "bleu_score": 0.39147448405304264,
+        "jaccard_index": 0.40625
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9721733004579077,
+        "bleu_score": 0.9615384615384616,
+        "jaccard_index": 0.9518072289156626
+    },
+    {
+        "file": "prompt_nr_rrc_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9317507418397626,
+        "bleu_score": 0.660377358490566,
+        "jaccard_index": 0.48514851485148514
+    },
+    {
+        "file": "prompt_offline-latency-analysis-ul_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.310384263494968,
+        "bleu_score": 0.2939735013627661,
+        "jaccard_index": 0.18235294117647058
+    },
+    {
+        "file": "prompt_offline-latency-analysis-ul_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1695876288659794,
+        "bleu_score": 0.29268296230086016,
+        "jaccard_index": 0.1895424836601307
+    },
+    {
+        "file": "prompt_offline-latency-analysis-ul_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8761817627325404,
+        "bleu_score": 0.3498362686875651,
+        "jaccard_index": 0.6881720430107527
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5508564499014703,
+        "bleu_score": 0.3333333333333333,
+        "jaccard_index": 0.5447154471544715
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.39013856397336694,
+        "bleu_score": 0.7254901960784313,
+        "jaccard_index": 0.5825242718446602
+    },
+    {
+        "file": "prompt_track_cell_info_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8452466047176554,
+        "bleu_score": 0.3877551020408163,
+        "jaccard_index": 0.5092592592592593
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.8993348115299334,
+        "bleu_score": 0.8213599548540416,
+        "jaccard_index": 0.6588235294117647
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.05714285714285714,
+        "bleu_score": 0.3302391999048311,
+        "jaccard_index": 0.328
+    },
+    {
+        "file": "prompt_ul_mac_latency_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.670316301703163,
+        "bleu_score": 0.6274509803921569,
+        "jaccard_index": 0.45454545454545453
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.1659890649095752,
+        "bleu_score": 0.5652173913043478,
+        "jaccard_index": 0.4444444444444444
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5966799877036582,
+        "bleu_score": 0.5576923076923077,
+        "jaccard_index": 0.4172661870503597
+    },
+    {
+        "file": "prompt_umts_nas_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.9546589018302829,
+        "bleu_score": 0.7872340425531915,
+        "jaccard_index": 0.7380952380952381
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_example_1_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.7128874388254486,
+        "bleu_score": 0.2962962962962963,
+        "jaccard_index": 0.37209302325581395
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_example_2_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.4589631480324797,
+        "bleu_score": 0.5223880597014925,
+        "jaccard_index": 0.6029411764705882
+    },
+    {
+        "file": "prompt_wcdma_rrc_analyzer_example_3_generated_ICL.py",
+        "syntax_correct": true,
+        "syntax_error": null,
+        "ast_similarity": 0.5251609128145114,
+        "bleu_score": 0.5789473684210527,
+        "jaccard_index": 0.4748201438848921
+    }
+]
